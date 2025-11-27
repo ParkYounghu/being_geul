@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}{{ program.title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+       <h2>{{ program.title }}</h2>
+        <div>
+            {% if request.session.get('is_admin') %}
+                <a href="/programs/{{ program.id }}/edit" class="btn btn-secondary btn-sm">수정</a>
+                <form action="/programs/{{ program.id }}/delete" method="post" class="d-inline" onsubmit="return confirm('정말로 삭제하시겠습니까?');">
+                    <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        <p><strong>설명:</strong> {{ program.description | safe }}</p>
+        <p><strong>지원금:</strong> {{ program.support_amount }}</p>
+        <p><strong>자격:</strong> {{ program.qualification | safe }}</p>
+        <p><strong>마감일:</strong> {{ program.deadline.strftime('%Y-%m-%d') if program.deadline else '상시' }}</p>
+        {% if program.apply_link %}
+        <a href="{{ program.apply_link }}" target="_blank" class="btn btn-primary">신청하기</a>
+        {% endif %}
+    </div>
+     <div class="card-footer">
+        {% if request.session.get('user_id') %}
+            <form action="/notify/{{ program.id }}" method="post">
+                <button type="submit" class="btn btn-success">알림 신청</button>
+            </form>
+        {% else %}
+            <a href="/auth/login" class="btn btn-outline-primary">로그인 후 알림 신청</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

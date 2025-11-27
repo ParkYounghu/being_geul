@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}관리자 대시보드{% endblock %}
+
+{% block content %}
+<h1>관리자 대시보드</h1>
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">총 사용자 수</h5>
+                <p class="card-text fs-2">{{ stats.user_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">총 프로그램 수</h5>
+                <p class="card-text fs-2">{{ stats.program_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5 class="card-title">총 알림 수</h5>
+                <p class="card-text fs-2">{{ stats.notification_count }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

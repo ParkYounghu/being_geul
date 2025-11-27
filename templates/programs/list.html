@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}프로그램 목록{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>정부지원사업 목록</h1>
+    {% if request.session.get('is_admin') %}
+    <a href="/programs/create" class="btn btn-primary">새 프로그램 추가</a>
+    {% endif %}
+</div>
+
+{% if programs %}
+    <div class="row">
+        {% for program in programs %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ program.title }}</h5>
+                    <p class="card-text"><strong>마감일:</strong> {{ program.deadline.strftime('%Y-%m-%d') if program.deadline else '상시' }}</p>
+                    <p class="card-text"><strong>지원금:</strong> {{ program.support_amount }}</p>
+                    <a href="/programs/{{ program.id }}" class="btn btn-outline-primary btn-sm">상세보기</a>
+                    {% if request.session.get('user_id') %}
+                    <form action="/notify/{{ program.id }}" method="post" class="d-inline">
+                         <button type="submit" class="btn btn-outline-success btn-sm">알림신청</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-info" role="alert">
+      등록된 프로그램이 없습니다.
+    </div>
+{% endif %}
+
+{% endblock %}
