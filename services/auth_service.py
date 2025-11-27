@@ -1,39 +1,37 @@
-import bcrypt
-from services.db import get_db_connection
-from psycopg2.extras import RealDictCursor
+from passlib.context import CryptContext
+from services.db import Database
 
-def hash_password(password: str) -> str:
-    """Hashes a password using bcrypt."""
-    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """Verifies a plain password against a hashed password."""
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
+def get_password_hash(password):
+    return pwd_context.hash(password)
 
-def create_user(email: str, password: str):
-    """Creates a new user in the database."""
-    password_hash = hash_password(password)
-    is_admin = (email == "admin@example.com")
-    
-    conn = get_db_connection()
-    try:
-        with conn.cursor() as cur:
-            cur.execute(
-                "INSERT INTO users (email, password_hash, is_admin) VALUES (%s, %s, %s) RETURNING id, email, is_admin",
-                (email, password_hash, is_admin)
-            )
-            user = cur.fetchone()
-            conn.commit()
-            return user
-    finally:
-        conn.close()
+def verify_password(plain_password, hashed_password):
+    return pwd_context.verify(plain_password, hashed_password)
 
 def get_user_by_email(email: str):
-    """Retrieves a user from the database by email."""
-    conn = get_db_connection()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT * FROM users WHERE email = %s", (email,))
-            return cur.fetchone()
-    finally:
-        conn.close()
+    with Database() as cur:
+        cur.execute("SELECT * FROM users WHERE email = %s", (email,))
+        user = cur.fetchone()
+        return user
+
+def create_user(email: str, password: str, is_admin: bool = False):
+    hashed_password = get_password_hash(password)
+    with Database() as cur:
+        try:
+            cur.execute(
+                "INSERT INTO users (email, password, is_admin) VALUES (%s, %s, %s) RETURNING id",
+                (email, hashed_password, is_admin)
+            )
+            user_id = cur.fetchone()[0]
+            return user_id
+        except Exception as e:
+            # Could be a unique constraint violation
+            print(f"Error creating user: {e}")
+            return None
+
+def get_user_count():
+    with Database() as cur:
+        cur.execute("SELECT COUNT(id) FROM users")
+        count = cur.fetchone()[0]
+        return count

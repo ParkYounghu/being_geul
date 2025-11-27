@@ -1,12 +1,13 @@
 body {
-    padding-top: 56px; /* Adjust based on navbar height */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
-.card-title {
-    font-size: 1.1rem;
-    font-weight: bold;
+main {
+    flex: 1;
 }
 
-.container {
-    max-width: 960px;
+.card-title.mb-0 {
+    margin-bottom: 0 !important;
 }

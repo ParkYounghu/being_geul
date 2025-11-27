@@ -1,100 +1,97 @@
-from services.db import get_db_connection
-from psycopg2.extras import RealDictCursor
-from typing import List, Dict, Any, Optional
+# NOTE: This service assumes the 'being_geul' table has the following columns:
+# id (SERIAL), title (VARCHAR), description (TEXT), deadline (TIMESTAMP), 
+# agency (VARCHAR), link (VARCHAR), support_type (VARCHAR).
+# This assumption is based on the prompt's examples and common fields for such data.
 
-def get_all_programs() -> List[Dict[str, Any]]:
-    """Fetches all programs from the database."""
-    conn = get_db_connection()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT * FROM programs ORDER BY deadline DESC, created_at DESC")
-            programs = cur.fetchall()
-            return programs
-    finally:
-        conn.close()
+from services.db import Database
+from typing import Dict, Any, List
 
-def get_program_by_id(program_id: int) -> Optional[Dict[str, Any]]:
-    """Fetches a single program by its ID."""
-    conn = get_db_connection()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT * FROM programs WHERE id = %s", (program_id,))
-            program = cur.fetchone()
-            return program
-    finally:
-        conn.close()
+def get_all_programs(page: int = 1, page_size: int = 10) -> List[Dict[str, Any]]:
+    """
+    Retrieves a paginated list of all programs from the being_geul table.
+    """
+    offset = (page - 1) * page_size
+    with Database() as cur:
+        cur.execute(
+            "SELECT * FROM being_geul ORDER BY id DESC LIMIT %s OFFSET %s",
+            (page_size, offset)
+        )
+        programs = cur.fetchall()
+        return [dict(program) for program in programs]
 
-def create_program(program_data: Dict[str, Any]) -> Dict[str, Any]:
-    """Creates a new program in the database."""
-    conn = get_db_connection()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                """
-                INSERT INTO programs (title, description, support_amount, qualification, deadline, apply_link)
-                VALUES (%(title)s, %(description)s, %(support_amount)s, %(qualification)s, %(deadline)s, %(apply_link)s)
-                RETURNING *
-                """,
-                program_data
-            )
-            new_program = cur.fetchone()
-            conn.commit()
-            return new_program
-    finally:
-        conn.close()
+def get_program_by_id(program_id: int) -> Dict[str, Any]:
+    """
+    Retrieves a single program by its ID.
+    """
+    with Database() as cur:
+        cur.execute("SELECT * FROM being_geul WHERE id = %s", (program_id,))
+        program = cur.fetchone()
+        return dict(program) if program else None
 
-def update_program(program_id: int, program_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """Updates an existing program."""
-    program_data['id'] = program_id
-    conn = get_db_connection()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                """
-                UPDATE programs
-                SET title = %(title)s, description = %(description)s, support_amount = %(support_amount)s,
-                    qualification = %(qualification)s, deadline = %(deadline)s, apply_link = %(apply_link)s
-                WHERE id = %(id)s
-                RETURNING *
-                """,
-                program_data
-            )
-            updated_program = cur.fetchone()
-            conn.commit()
-            return updated_program
-    finally:
-        conn.close()
+def create_program(program_data: Dict[str, Any]) -> int:
+    """
+    Inserts a new program into the being_geul table.
+    """
+    # Adjust the fields based on the actual table structure
+    fields = ['title', 'description', 'deadline', 'agency', 'link', 'support_type']
+    values = [program_data.get(field) for field in fields]
+    
+    with Database() as cur:
+        cur.execute(
+            f"""
+            INSERT INTO being_geul ({', '.join(fields)}) 
+            VALUES (%s, %s, %s, %s, %s, %s) 
+            RETURNING id
+            """,
+            tuple(values)
+        )
+        program_id = cur.fetchone()[0]
+        return program_id
 
-def delete_program(program_id: int) -> bool:
-    """Deletes a program from the database."""
-    conn = get_db_connection()
-    try:
-        with conn.cursor() as cur:
-            cur.execute("DELETE FROM programs WHERE id = %s", (program_id,))
-            conn.commit()
-            # The operation is successful if no exception is raised.
-            return cur.rowcount > 0
-    finally:
-        conn.close()
+def update_program(program_id: int, program_data: Dict[str, Any]):
+    """
+    Updates an existing program in the being_geul table.
+    """
+    # Adjust the fields based on the actual table structure
+    fields = ['title', 'description', 'deadline', 'agency', 'link', 'support_type']
+    values = [program_data.get(field) for field in fields]
+    values.append(program_id)
 
-def get_dashboard_stats() -> Dict[str, int]:
-    """Retrieves statistics for the admin dashboard."""
-    conn = get_db_connection()
-    try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("SELECT COUNT(*) AS count FROM users;")
-            user_count = cur.fetchone()['count']
-            
-            cur.execute("SELECT COUNT(*) AS count FROM programs;")
-            program_count = cur.fetchone()['count']
+    with Database() as cur:
+        cur.execute(
+            f"""
+            UPDATE being_geul SET
+            title = %s,
+            description = %s,
+            deadline = %s,
+            agency = %s,
+            link = %s,
+            support_type = %s
+            WHERE id = %s
+            """,
+            tuple(values)
+        )
 
-            cur.execute("SELECT COUNT(*) AS count FROM notifications;")
-            notification_count = cur.fetchone()['count']
+def delete_program(program_id: int):
+    """
+    Deletes a program from the being_geul table.
+    """
+    with Database() as cur:
+        cur.execute("DELETE FROM being_geul WHERE id = %s", (program_id,))
 
-            return {
-                "user_count": user_count,
-                "program_count": program_count,
-                "notification_count": notification_count
-            }
-    finally:
-        conn.close()
+def get_program_count() -> int:
+    """
+    Returns the total number of programs.
+    """
+    with Database() as cur:
+        cur.execute("SELECT COUNT(id) FROM being_geul")
+        count = cur.fetchone()[0]
+        return count
+
+def get_total_program_count() -> int:
+    """
+    Get the total number of programs for pagination purposes.
+    """
+    with Database() as cur:
+        cur.execute("SELECT COUNT(*) FROM being_geul")
+        return cur.fetchone()[0]

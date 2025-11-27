@@ -5,33 +5,30 @@
 {% block content %}
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-       <h2>{{ program.title }}</h2>
+        <h1 class="card-title mb-0">{{ program.title }}</h1>
         <div>
-            {% if request.session.get('is_admin') %}
-                <a href="/programs/{{ program.id }}/edit" class="btn btn-secondary btn-sm">수정</a>
-                <form action="/programs/{{ program.id }}/delete" method="post" class="d-inline" onsubmit="return confirm('정말로 삭제하시겠습니까?');">
-                    <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-                </form>
-            {% endif %}
+            <a href="{{ url_for('edit_program_form', program_id=program.id) }}" class="btn btn-warning btn-sm">수정</a>
+            <form action="{{ url_for('delete_program_action', program_id=program.id) }}" method="post" class="d-inline" onsubmit="return confirm('정말로 이 사업을 삭제하시겠습니까?');">
+                <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+            </form>
         </div>
     </div>
     <div class="card-body">
-        <p><strong>설명:</strong> {{ program.description | safe }}</p>
-        <p><strong>지원금:</strong> {{ program.support_amount }}</p>
-        <p><strong>자격:</strong> {{ program.qualification | safe }}</p>
-        <p><strong>마감일:</strong> {{ program.deadline.strftime('%Y-%m-%d') if program.deadline else '상시' }}</p>
-        {% if program.apply_link %}
-        <a href="{{ program.apply_link }}" target="_blank" class="btn btn-primary">신청하기</a>
+        <h5 class="card-subtitle mb-2 text-muted">주관 기관: {{ program.agency }}</h5>
+        <p><strong>지원 형태:</strong> {{ program.support_type }}</p>
+        <p><strong>마감일:</strong> {{ program.deadline.strftime('%Y-%m-%d %H:%M') if program.deadline else '상시' }}</p>
+        
+        <hr>
+        
+        <h5>상세 내용</h5>
+        <p style="white-space: pre-wrap;">{{ program.description }}</p>
+        
+        <hr>
+        
+        {% if program.link %}
+        <a href="{{ program.link }}" class="btn btn-info" target="_blank" rel="noopener noreferrer">공고 원문 바로가기</a>
         {% endif %}
-    </div>
-     <div class="card-footer">
-        {% if request.session.get('user_id') %}
-            <form action="/notify/{{ program.id }}" method="post">
-                <button type="submit" class="btn btn-success">알림 신청</button>
-            </form>
-        {% else %}
-            <a href="/auth/login" class="btn btn-outline-primary">로그인 후 알림 신청</a>
-        {% endif %}
+        <a href="{{ url_for('list_programs') }}" class="btn btn-secondary">목록으로 돌아가기</a>
     </div>
 </div>
 {% endblock %}

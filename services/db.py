@@ -1,49 +1,73 @@
 import os
 import psycopg2
-from psycopg2.extras import RealDictCursor
+from psycopg2.pool import SimpleConnectionPool
 from dotenv import load_dotenv
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 load_dotenv()
 
+pool = SimpleConnectionPool(
+    minconn=1,
+    maxconn=10,
+    host=os.getenv("POSTGRES_HOST"),
+    port=os.getenv("POSTGRES_PORT"),
+    dbname=os.getenv("POSTGRES_DB"),
+    user=os.getenv("POSTGRES_USER"),
+    password=os.getenv("POSTGRES_PASSWORD"),
+)
+
 def get_db_connection():
-    """Establishes a connection to the PostgreSQL database."""
-    try:
-        conn = psycopg2.connect(
-            host=os.getenv("POSTGRES_HOST", "localhost"),
-            port=os.getenv("POSTGRES_PORT", "5432"),
-            dbname=os.getenv("POSTGRES_DB", "main_db"),
-            user=os.getenv("POSTGRES_USER", "admin"),
-            password=os.getenv("POSTGRES_PASSWORD", "admin123")
-        )
-        logger.info("Database connection successful.")
-        return conn
-    except psycopg2.OperationalError as e:
-        logger.error(f"Database connection failed: {e}")
-        raise
+    """
+    Gets a connection from the pool.
+    """
+    return pool.getconn()
+
+def release_db_connection(conn):
+    """
+    Releases a connection back to the pool.
+    """
+    pool.putconn(conn)
 
 def init_db():
-    """Initializes the database by creating tables from the schema.sql file."""
-    conn = None
+    """
+    Initializes the database, creating the users table if it doesn't exist.
+    """
+    conn = get_db_connection()
     try:
-        conn = get_db_connection()
         with conn.cursor() as cur:
-            with open('db/schema.sql', 'r') as f:
-                cur.execute(f.read())
-        conn.commit()
-        logger.info("Database initialized successfully.")
-    except (Exception, psycopg2.DatabaseError) as error:
-        logger.error(f"Error during database initialization: {error}")
-        if conn:
-            conn.rollback()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    email VARCHAR(255) UNIQUE NOT NULL,
+                    password VARCHAR(255) NOT NULL,
+                    is_admin BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                );
+            """)
+            
+            # Check if admin user exists, if not create one
+            admin_email = os.getenv("ADMIN_EMAIL")
+            cur.execute("SELECT id FROM users WHERE email = %s", (admin_email,))
+            if cur.fetchone() is None:
+                from services.auth_service import get_password_hash
+                hashed_password = get_password_hash("admin") # Default admin password
+                cur.execute(
+                    "INSERT INTO users (email, password, is_admin) VALUES (%s, %s, %s)",
+                    (admin_email, hashed_password, True)
+                )
+            conn.commit()
     finally:
-        if conn:
-            conn.close()
+        release_db_connection(conn)
 
-if __name__ == '__main__':
-    logger.info("Running database initialization directly.")
-    init_db()
+class Database:
+    def __enter__(self):
+        self.conn = get_db_connection()
+        self.cur = self.conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        return self.cur
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if exc_val is None:
+            self.conn.commit()
+        else:
+            self.conn.rollback()
+        self.cur.close()
+        release_db_connection(self.conn)

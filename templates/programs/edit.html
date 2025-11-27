@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}사업 정보 수정{% endblock %}
+
+{% block content %}
+<h1>"{{ program.title }}" 사업 정보 수정</h1>
+<hr>
+<form method="post">
+    <div class="mb-3">
+        <label for="title" class="form-label">사업명</label>
+        <input type="text" class="form-control" id="title" name="title" value="{{ program.title }}" required>
+    </div>
+    <div class="mb-3">
+        <label for="agency" class="form-label">주관 기관</label>
+        <input type="text" class="form-control" id="agency" name="agency" value="{{ program.agency }}">
+    </div>
+    <div class="mb-3">
+        <label for="support_type" class="form-label">지원 형태</label>
+        <input type="text" class="form-control" id="support_type" name="support_type" value="{{ program.support_type }}">
+    </div>
+    <div class="mb-3">
+        <label for="deadline" class="form-label">마감일</label>
+        {# Format the datetime-local value correctly #}
+        {% set deadline_value = program.deadline.strftime('%Y-%m-%dT%H:%M') if program.deadline else '' %}
+        <input type="datetime-local" class="form-control" id="deadline" name="deadline" value="{{ deadline_value }}">
+    </div>
+    <div class="mb-3">
+        <label for="link" class="form-label">공고 링크</label>
+        <input type="url" class="form-control" id="link" name="link" value="{{ program.link }}">
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">상세 내용</label>
+        <textarea class="form-control" id="description" name="description" rows="10">{{ program.description }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">수정 완료</button>
+    <a href="{{ url_for('get_program', program_id=program.id) }}" class="btn btn-secondary">취소</a>
+</form>
+{% endblock %}
