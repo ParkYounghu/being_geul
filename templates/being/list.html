@@ -1,0 +1,41 @@
+<!-- templates/being/list.html -->
+{% extends "base.html" %}
+
+{% block title %}사업 목록{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">정부 지원 사업 목록</h1>
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">제목</th>
+                <th scope="col">카테고리</th>
+                <th scope="col">마감일</th>
+                <th scope="col">링크</th>
+                <th scope="col">상세</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for project in projects %}
+            <tr>
+                <th scope="row">{{ project.id }}</th>
+                <td>{{ project.title }}</td>
+                <td>{{ project.category }}</td>
+                <td>{{ project.deadline }}</td>
+                <td><a href="{{ project.link }}" target="_blank" class="btn btn-sm btn-outline-primary">방문</a></td>
+                <td><a href="/being/detail/{{ project.id }}" class="btn btn-sm btn-info">보기</a></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" class="text-center">등록된 사업이 없습니다.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="d-flex justify-content-end">
+    <a href="/being/create" class="btn btn-primary">새 사업 등록</a>
+</div>
+{% endblock %}

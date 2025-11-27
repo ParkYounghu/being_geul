@@ -1,13 +1,22 @@
+/* static/css/style.css */
+
+/* 전체적인 폰트나 기본 스타일을 설정할 수 있습니다. */
 body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    font-family: 'Noto Sans KR', sans-serif;
 }
 
-main {
-    flex: 1;
+/* 테이블 헤더를 더 강조하고 싶을 때 */
+.table-dark {
+    background-color: #343a40 !important;
 }
 
-.card-title.mb-0 {
-    margin-bottom: 0 !important;
+/* 카드 컴포넌트 커스터마이징 */
+.card {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.card-footer {
+    background-color: #f8f9fa;
 }

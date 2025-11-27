@@ -1,7 +1,4 @@
 fastapi
 uvicorn[standard]
-jinja2
 psycopg2-binary
-passlib[bcrypt]
-python-dotenv
-python-multipart
+jinja2
