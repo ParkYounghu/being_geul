@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정책 탐색 - Policy Matcher</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="main-container">
+        <!-- 사이드바 -->
+        <aside class="sidebar">
+            <div class="logo-area">Policy Matcher</div>
+            <nav class="menu">
+                <a href="/" class="menu-item">
+                    <i class="fas fa-layer-group"></i>
+                    <span>오늘의 정책</span>
+                </a>
+                <a href="/index_02" class="menu-item">
+                    <i class="fas fa-bookmark"></i>
+                    <span>찜한 정책</span>
+                </a>
+                <a href="/index_03" class="menu-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>취향 분석</span>
+                </a>
+                <a href="/index_04" class="menu-item active">
+                    <i class="fas fa-search"></i>
+                    <span>정책 탐색</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 콘텐츠 영역: 카테고리 리스트 -->
+        <main class="content-area">
+            <div class="content-header">
+                <h2>정책 탐색</h2>
+                <p>관심 있는 분야를 찾아보세요</p>
+            </div>
+            
+            <div class="chip-scroll">
+                <div class="chip active">전체</div>
+                <div class="chip">청년정책</div>
+                <div class="chip">주거/부동산</div>
+                <div class="chip">금융/재테크</div>
+                <div class="chip">교육/장학</div>
+                <div class="chip">문화/예술</div>
+            </div>
+
+            <div class="news-list">
+                <div class="news-item">
+                    <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=200" class="news-thumb">
+                    <div class="news-content">
+                        <div class="news-cat">금융</div>
+                        <div class="news-title">2024년 청년 월세 지원, 조건 완화된다</div>
+                        <div class="news-meta">1시간 전 · 읽음 1.2만</div>
+                    </div>
+                </div>
+                <div class="news-item">
+                    <img src="https://images.unsplash.com/photo-1526304640152-d4619684e484?w=200" class="news-thumb">
+                    <div class="news-content">
+                        <div class="news-cat">경제</div>
+                        <div class="news-title">기준금리 동결, 우리 생활에 미칠 영향은?</div>
+                        <div class="news-meta">3시간 전 · 읽음 5천</div>
+                    </div>
+                </div>
+                <div class="news-item">
+                    <img src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=200" class="news-thumb">
+                    <div class="news-content">
+                        <div class="news-cat">교육</div>
+                        <div class="news-title">K-디지털 트레이닝, 수강생 추가 모집</div>
+                        <div class="news-meta">5시간 전 · 읽음 8천</div>
+                    </div>
+                </div>
+                <div class="news-item">
+                    <img src="https://images.unsplash.com/photo-1444653614773-995cb1ef902a?w=200" class="news-thumb">
+                    <div class="news-content">
+                        <div class="news-cat">교통</div>
+                        <div class="news-title">지하철 정기권, 이제 버스 환승도 된다?</div>
+                        <div class="news-meta">어제 · 읽음 2.1만</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/static/script.js"></script>script>
+</body>
+</html>

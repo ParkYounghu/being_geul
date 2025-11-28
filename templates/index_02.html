@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>찜한 정책 - Policy Matcher</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="main-container">
+        <!-- 사이드바 -->
+        <aside class="sidebar">
+            <div class="logo-area">Policy Matcher</div>
+            <nav class="menu">
+                <a href="/" class="menu-item">
+                    <i class="fas fa-layer-group"></i>
+                    <span>오늘의 정책</span>
+                </a>
+                <a href="/index_02" class="menu-item active">
+                    <i class="fas fa-bookmark"></i>
+                    <span>찜한 정책</span>
+                </a>
+                <a href="/index_03" class="menu-item">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>취향 분석</span>
+                </a>
+                <a href="/index_04" class="menu-item">
+                    <i class="fas fa-search"></i>
+                    <span>정책 탐색</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 콘텐츠 영역: 핀터레스트 그리드 -->
+        <main class="content-area">
+            <div class="content-header">
+                <h2>내가 찜한 정책</h2>
+                <p>관심 있는 정책들을 모아봤어요</p>
+            </div>
+            <div class="masonry-grid">
+                <div class="grid-item">
+                    <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=400" alt="money">
+                    <div class="grid-info"><h4>청년 도약 계좌</h4><span>금융/지원</span></div>
+                </div>
+                <div class="grid-item">
+                    <img src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=400" alt="meeting">
+                    <div class="grid-info"><h4>취업 동아리 지원</h4><span>일자리</span></div>
+                </div>
+                <div class="grid-item">
+                    <img src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400" alt="bus">
+                    <div class="grid-info"><h4>K-패스 교통카드</h4><span>교통</span></div>
+                </div>
+                <div class="grid-item">
+                    <img src="https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=400" alt="study">
+                    <div class="grid-info"><h4>국민 내일 배움 카드</h4><span>교육</span></div>
+                </div>
+                <div class="grid-item">
+                    <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400" alt="tech">
+                    <div class="grid-info"><h4>디지털 인재 양성</h4><span>IT/개발</span></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>
