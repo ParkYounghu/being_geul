@@ -3,36 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>찜한 정책</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>빙글 - 좋아요</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="dark-mode">
-    <div class="main-container">
-        <aside class="sidebar">
-            <div class="logo-area">Policy Matcher</div>
-            <nav class="menu">
-                <a href="/" class="menu-item {% if active_page == '/' %}active{% endif %}"><i class="fas fa-layer-group"></i><span>오늘의 정책</span></a>
-                <a href="/index_02" class="menu-item {% if active_page == '/index_02' %}active{% endif %}"><i class="fas fa-bookmark"></i><span>찜한 정책</span></a>
-                <a href="/index_03" class="menu-item {% if active_page == '/index_03' %}active{% endif %}"><i class="fas fa-chart-pie"></i><span>취향 분석</span></a>
-                <a href="/index_04" class="menu-item {% if active_page == '/index_04' %}active{% endif %}"><i class="fas fa-search"></i><span>정책 탐색</span></a>
-            </nav>
-        </aside>
-        <main class="content-area">
-            <div class="content-header"><h2>내가 찜한 정책</h2></div>
-            <div class="policy-grid-container" id="likedPoliciesGrid">
-                {% for policy in policies %}
-                <a href="{{ policy.link }}" target="_blank" class="policy-grid-item" data-id="{{ policy.id }}">
-                    <div class="grid-info">
-                        <span class="grid-genre">{{ policy.genre }}</span>
-                        <h4>{{ policy.title }}</h4>
-                        <p>{{ policy.summary }}</p>
-                    </div>
-                </a>
-                {% endfor %}
-                <p id="noLikedItemsMessage" class="no-data-message" style="display:none; grid-column: 1 / -1;">찜한 정책이 없습니다.</p>
-            </div>
-        </main>
+<body>
+    <nav>
+        <a href="/">홈</a>
+        <a href="/liked" class="active">좋아요</a>
+        <a href="/analysis">분석</a>
+        <a href="/search">검색</a>
+    </nav>
+    <div id="liked-grid" class="grid-container">
+        {% for policy in policies %}
+        <div class="grid-item" data-id="{{ policy.id }}" style="display: none;">
+             <a href="{{ policy.link }}" target="_blank">
+                <h2>{{ policy.title }}</h2>
+                <p>{{ policy.summary }}</p>
+                <span>기간: {{ policy.period }}</span>
+            </a>
+        </div>
+        {% endfor %}
     </div>
     <script src="/static/script.js"></script>
 </body>

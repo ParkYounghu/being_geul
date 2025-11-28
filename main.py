@@ -1,29 +1,31 @@
+# -*- coding: utf-8 -*-
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, Column, Integer, String, Text
-from sqlalchemy.orm import sessionmaker, declarative_base
-from fastapi import FastAPI, Request, Depends, HTTPException
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, Depends, Request
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy import create_engine, Column, Integer, String, Text
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.ext.declarative import declarative_base
 
+# .env 파일에서 환경 변수 로드
 load_dotenv()
 
+# 데이터베이스 연결 정보
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 
-if not all([DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME]):
-    print("경고: .env 설정이 확인되지 않았습니다.")
-
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
+# SQLAlchemy 설정
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
+# 데이터베이스 모델 정의
 class BeingGeul(Base):
     __tablename__ = "being_geul"
     id = Column(Integer, primary_key=True, index=True)
@@ -31,10 +33,18 @@ class BeingGeul(Base):
     summary = Column(Text)
     period = Column(String)
     link = Column(String)
-    genre = Column(String, default="기타")
+    genre = Column(String) # 장르 컬럼 추가
 
-Base.metadata.create_all(bind=engine)
+# FastAPI 앱 초기화
+app = FastAPI()
 
+# 정적 파일 마운트 (CSS, JS)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Jinja2 템플릿 설정
+templates = Jinja2Templates(directory="templates")
+
+# 데이터베이스 세션 의존성
 def get_db():
     db = SessionLocal()
     try:
@@ -42,23 +52,35 @@ def get_db():
     finally:
         db.close()
 
-app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+# --- 라우팅 ---
 
-async def get_all_policies(db: SessionLocal = Depends(get_db)):
-    return db.query(BeingGeul).all()
+@app.get("/")
+def read_root(request: Request, db: Session = Depends(get_db)):
+    ''' Tinder-style Swipe UI 페이지 '''
+    policies = db.query(BeingGeul).all()
+    return templates.TemplateResponse("index_01.html", {"request": request, "policies": policies})
 
-@app.get("/", response_class=HTMLResponse)
-async def read_root(request: Request, policies: list = Depends(get_all_policies)):
-    return templates.TemplateResponse("index_01.html", {"request": request, "policies": policies, "active_page": "/"})
+@app.get("/liked")
+def read_liked(request: Request, db: Session = Depends(get_db)):
+    ''' '좋아요' 표시한 정책을 보여주는 페이지 '''
+    policies = db.query(BeingGeul).all()
+    return templates.TemplateResponse("index_02.html", {"request": request, "policies": policies})
 
-@app.get("/{page_name}", response_class=HTMLResponse)
-async def read_page(page_name: str, request: Request, policies: list = Depends(get_all_policies)):
-    if ".." in page_name or "/" in page_name:
-        raise HTTPException(status_code=400, detail="Invalid page name")
-    template_file = f"{page_name}.html"
-    template_path = os.path.join(templates.directory, template_file)
-    if not os.path.exists(template_path):
-        raise HTTPException(status_code=404, detail="Page not found")
-    return templates.TemplateResponse(template_file, {"request": request, "policies": policies, "active_page": f"/{page_name}"})
+@app.get("/analysis")
+def read_analysis(request: Request, db: Session = Depends(get_db)):
+    ''' '좋아요' 기반 장르 분석 페이지 '''
+    policies = db.query(BeingGeul).all()
+    return templates.TemplateResponse("index_03.html", {"request": request, "policies": policies})
+
+@app.get("/search")
+def read_search(request: Request, db: Session = Depends(get_db)):
+    ''' 모든 정책을 그리드 뷰로 보여주는 페이지 '''
+    policies = db.query(BeingGeul).all()
+    return templates.TemplateResponse("index_04.html", {"request": request, "policies": policies})
+
+# --- 서버 실행 (디버깅용) ---
+# if __name__ == "__main__":
+#     import uvicorn
+#     # 테이블 생성 (최초 실행 시 필요)
+#     # Base.metadata.create_all(bind=engine)
+#     uvicorn.run(app, host="0.0.0.0", port=8000)

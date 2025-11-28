@@ -3,32 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>취향 분석</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>빙글 - 분석</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
-<body class="dark-mode">
-    <div class="main-container">
-        <aside class="sidebar">
-            <div class="logo-area">Policy Matcher</div>
-            <nav class="menu">
-                <a href="/" class="menu-item {% if active_page == '/' %}active{% endif %}"><i class="fas fa-layer-group"></i><span>오늘의 정책</span></a>
-                <a href="/index_02" class="menu-item {% if active_page == '/index_02' %}active{% endif %}"><i class="fas fa-bookmark"></i><span>찜한 정책</span></a>
-                <a href="/index_03" class="menu-item {% if active_page == '/index_03' %}active{% endif %}"><i class="fas fa-chart-pie"></i><span>취향 분석</span></a>
-                <a href="/index_04" class="menu-item {% if active_page == '/index_04' %}active{% endif %}"><i class="fas fa-search"></i><span>정책 탐색</span></a>
-            </nav>
-        </aside>
-        <main class="content-area analysis-page">
-            <div class="content-header"><h2>나의 정책 취향 분석</h2></div>
-            <div class="analysis-results">
-                <p id="noAnalysisDataMessage" class="no-data-message" style="display:none;">분석할 데이터가 없습니다.</p>
-                <div id="genreAnalysisChart" class="chart-container"></div>
-                <div id="genreAnalysisList" class="analysis-list"></div>
-            </div>
-             {% for policy in policies %}
-                <div class="hidden-policy-data" data-id="{{ policy.id }}" data-genre="{{ policy.genre }}" data-title="{{ policy.title }}" data-summary="{{ policy.summary }}" data-period="{{ policy.period }}" data-link="{{ policy.link }}"></div>
-            {% endfor %}
-        </main>
+<body>
+    <nav>
+        <a href="/">홈</a>
+        <a href="/liked">좋아요</a>
+        <a href="/analysis" class="active">분석</a>
+        <a href="/search">검색</a>
+    </nav>
+    <div id="analysis-container">
+        <h1>'좋아요'한 정책 장르 분석</h1>
+        <div id="analysis-results">
+            <!-- 분석 결과가 여기에 동적으로 삽입됩니다. -->
+        </div>
     </div>
     <script src="/static/script.js"></script>
 </body>
