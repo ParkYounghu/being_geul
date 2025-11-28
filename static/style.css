@@ -9,6 +9,8 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", Roboto, sans-serif;
     height: 100vh;
     overflow: hidden;
+    background-color: #1a1a1a; /* Global Dark body background */
+    color: #f0f0f0; /* Light text for dark mode */
 }
 
 a {
@@ -25,12 +27,12 @@ a {
 /* --- 왼쪽 사이드바 (메뉴) 스타일 --- */
 .sidebar {
     width: 250px;
-    background-color: #2c3e50;
+    background-color: #222222; /* Darker sidebar */
     color: #ecf0f1;
     display: flex;
     flex-direction: column;
     padding: 20px;
-    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.5);
 }
 
 .logo-area {
@@ -69,9 +71,9 @@ a {
     color: white;
 }
 
-/* 활성 상태 강조 (각 HTML에서 해당 메뉴에 클래스 추가됨) */
+/* 활성 상태 강조 */
 .menu-item.active {
-    background-color: #3B82F6;
+    background-color: #555555; /* Darker active background */
     color: white;
     font-weight: 600;
 }
@@ -80,10 +82,11 @@ a {
 /* --- 오른쪽 콘텐츠 영역 스타일 --- */
 .content-area {
     flex: 1;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background-color: #282828; /* Dark content area */
     padding: 40px;
     overflow-y: auto;
     position: relative;
+    color: #f0f0f0; /* Light text for content */
 }
 
 .content-header {
@@ -92,272 +95,79 @@ a {
 
 .content-header h2 {
     font-size: 28px;
-    color: #2c3e50;
+    color: #ffffff;
     margin-bottom: 10px;
 }
 
 .content-header p {
-    color: #666;
+    color: #cccccc;
     font-size: 16px;
 }
 
 
-/* =========================================
-   PAGE 1: 틴더 스타일 (스와이프)
-   ========================================= */
-.card-stack-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    min-height: 500px;
+/* 정책 카드 리스트 컨테이너 */
+.policy-card-list-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid */
+    gap: 25px;
+    padding: 20px 0;
 }
 
-.card-stack {
-    position: relative;
-    width: 400px;
-    height: 600px;
-}
-
-.swipe-card {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: white;
-    border-radius: 20px;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-    overflow: hidden;
-    transform-origin: 50% 100%;
-    transition: transform 0.1s linear;
-    cursor: grab;
-    display: flex;
-    flex-direction: column;
-}
-
-.swipe-card:active {
-    cursor: grabbing;
-}
-
-.card-image {
-    width: 100%;
-    height: 65%;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-}
-
-.card-info {
-    padding: 25px;
-    flex: 1;
+/* 정책 카드 스타일 */
+.policy-card {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background: white;
-}
-
-.card-badge {
-    display: inline-block;
-    padding: 6px 12px;
-    background: #eef2ff;
-    color: #3B82F6;
+    background-color: #000000; /* Black background */
+    color: #FFFFFF; /* White text */
     border-radius: 15px;
-    font-size: 13px;
-    font-weight: 600;
-    margin-bottom: 10px;
-    width: fit-content;
-}
-
-.card-title {
-    font-size: 24px;
-    font-weight: 800;
-    margin: 0 0 10px 0;
-    line-height: 1.3;
-    color: #2c3e50;
-}
-
-.card-desc {
-    font-size: 15px;
-    color: #666;
-    line-height: 1.6;
-}
-
-.status-text {
-    position: absolute;
-    top: 40px;
-    padding: 10px 20px;
-    border: 4px solid;
-    border-radius: 10px;
-    font-size: 36px;
-    font-weight: 800;
-    opacity: 0;
-    transform: rotate(-15deg);
-    z-index: 10;
-}
-.like-text { right: 40px; color: #4ade80; border-color: #4ade80; transform: rotate(15deg); }
-.nope-text { left: 40px; color: #f87171; border-color: #f87171; }
-
-
-/* =========================================
-   PAGE 2: 핀터레스트 그리드 (컬렉션)
-   ========================================= */
-.masonry-grid {
-    column-count: 3;
-    column-gap: 20px;
-}
-
-.grid-item {
-    display: inline-block;
-    width: 100%;
-    background: white;
-    border-radius: 16px;
-    margin-bottom: 20px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    transition: transform 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6); /* Enhanced shadow for dark card */
+    padding: 25px;
     cursor: pointer;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    text-decoration: none;
+    min-height: 200px; /* Ensure cards have a minimum height */
 }
 
-.grid-item:hover {
-    transform: translateY(-5px);
+.policy-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.8);
 }
 
-.grid-item img {
-    width: 100%;
-    display: block;
-}
-
-.grid-info {
-    padding: 15px;
-}
-.grid-info h4 { margin: 0 0 5px 0; font-size: 16px; color: #2c3e50; }
-.grid-info span { font-size: 12px; color: #888; }
-
-
-/* =========================================
-   PAGE 3: 토스 스타일 버블 (취향 분석)
-   ========================================= */
-.analysis-page-bg {
-    /* 분석 페이지만 어두운 배경 적용을 위한 클래스 */
-    background: linear-gradient(135deg, #2c3e50 0%, #1a252f 100%);
-    color: white;
-    min-height: 100%;
-}
-
-.analysis-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.bubble-wrapper {
-    flex: 1;
-    position: relative;
-    min-height: 500px;
-}
-
-.bubble-container {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-}
-
-.bubble {
-    position: absolute;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    color: white;
+.policy-card h3 {
+    font-size: 22px;
     font-weight: 700;
-    box-shadow: inset 0 0 25px rgba(255,255,255,0.2);
-    animation: float 6s ease-in-out infinite;
-    cursor: pointer;
-    transition: transform 0.3s;
+    margin-bottom: 10px;
+    line-height: 1.3;
 }
 
-.bubble:hover { transform: scale(1.15) !important; z-index: 100; }
-.bubble span { font-size: 16px; pointer-events: none; }
-.bubble small { display: block; font-size: 11px; opacity: 0.8; font-weight: 400; margin-top: 4px; }
-
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
-}
-
-.b1 { width: 140px; height: 140px; top: 20%; left: 20%; background: linear-gradient(135deg, #FF6B6B, #EE5D5D); animation-delay: 0s; }
-.b2 { width: 180px; height: 180px; top: 45%; right: 15%; background: linear-gradient(135deg, #4facfe, #00f2fe); animation-delay: 1s; }
-.b3 { width: 110px; height: 110px; bottom: 20%; left: 30%; background: linear-gradient(135deg, #43e97b, #38f9d7); animation-delay: 2s; }
-.b4 { width: 100px; height: 100px; top: 15%; right: 25%; background: linear-gradient(135deg, #fa709a, #fee140); animation-delay: 1.5s; }
-.b5 { width: 120px; height: 120px; bottom: 15%; right: 35%; background: linear-gradient(135deg, #667eea, #764ba2); animation-delay: 0.5s; }
-
-
-/* =========================================
-   PAGE 4: 카테고리 리스트 (탐색)
-   ========================================= */
-.chip-scroll {
-    display: flex;
-    gap: 12px;
-    overflow-x: auto;
-    padding-bottom: 15px;
-    margin-bottom: 30px;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-}
-.chip-scroll::-webkit-scrollbar { display: none; }
-
-.chip {
-    padding: 10px 20px;
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 25px;
+.policy-card p {
     font-size: 15px;
-    white-space: nowrap;
-    color: #64748b;
-    cursor: pointer;
-    transition: all 0.2s;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    line-height: 1.6;
+    margin-bottom: 15px;
+    flex-grow: 1;
+    color: #e0e0e0;
 }
 
-.chip:hover { background: #f1f5f9; }
-.chip.active { background: #2c3e50; color: white; border-color: #2c3e50; }
-
-.news-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+.policy-card .period {
+    font-size: 13px;
+    font-weight: 500;
+    color: #bbbbbb;
+    text-align: right;
 }
 
-.news-item {
-    display: flex;
-    gap: 20px;
-    background: white;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    transition: transform 0.2s;
-    cursor: pointer;
+.no-data-message {
+    grid-column: 1 / -1; /* Span across all columns */
+    text-align: center;
+    color: #cccccc;
+    font-size: 18px;
+    padding: 50px 0;
 }
 
-.news-item:hover { transform: translateY(-3px); }
-
-.news-thumb {
-    width: 100px;
-    height: 100px;
-    border-radius: 12px;
-    background: #eee;
-    object-fit: cover;
+/* --- 기타 페이지 콘텐츠를 위한 기본 스타일 --- */
+.content-body {
+    padding: 20px 0;
+    line-height: 1.6;
+    font-size: 16px;
+    color: #e0e0e0;
 }
-
-.news-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.news-cat { font-size: 13px; color: #3B82F6; font-weight: 600; margin-bottom: 8px; }
-.news-title { font-size: 18px; font-weight: 700; margin: 0 0 10px 0; line-height: 1.4; color: #2c3e50; }
-.news-meta { font-size: 13px; color: #999; }

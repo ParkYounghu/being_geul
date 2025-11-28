@@ -32,3 +32,98 @@ script.js
 style.css
 
 ```
+
+### 결과물
+
+```
+
+{
+  "role": "Senior Python Backend Developer",
+  "task": "Refactor a flat directory of HTML/CSS/JS files into a structured FastAPI project.",
+  "environment": {
+    "python_version": "3.12.12",
+    "frameworks": ["FastAPI", "Uvicorn", "Jinja2Templates"]
+  },
+  "project_context": {
+    "current_status": "Flat directory. All files (html, js, css) are in the root.",
+    "files": {
+      "html": ["index_01.html", "index_02.html", "index_03.html", "index_04.html"],
+      "js": ["script.js"],
+      "css": ["style.css"]
+    }
+  },
+  "requirements": [
+    "1. Automation Script (setup.py): Write a Python script using the 'os' and 'shutil' modules to automatically create 'templates' and 'static' directories and move the files into them (HTML -> templates, CSS/JS -> static).",
+    "2. FastAPI App (main.py): Create the main application file using FastAPI and Jinja2Templates.",
+    "3. Routing: Map 'index_01.html' to root ('/'). Create generic routes for the other HTML files.",
+    "4. Template Logic: Explain how to update the <link> and <script> tags in the HTML files to point to the new '/static/' path (e.g., href='/static/style.css').",
+    "5. No Bootstrap: Do not include Bootstrap; rely only on the provided custom 'style.css' and 'script.js'."
+  ],
+  "output_style": "Code-focused, providing the 'setup.py' first for organization, then 'main.py'.",
+  "output_language": "Korean"
+}
+
+```
+
+#### [gemini Prompt, DB being_geul 연결 prompt]
+
+```
+
+gemini CLI 에 쓸 프롬프트를 json 형식으로 만들어줘
+
+postgresql_db 에 being_geul 이라는 table에 있는 데이터를 써서 기존에 있던 웹페이지의 내용을 바꾸고 싶어 (index_01~04.html) , (style.css) (script.js) 이렇게 파일이 있는 상태고 being_geul 에는 기본으로 있는 id, 그리고 title / summary / period / link 항목이 있어 해당하는 title에 따라 썸네일(이미지)를 만들어주는데, 인물같은 이미지가 아닌 그냥 검은바탕에 흰색 텍스트로 title,summary,period 내용이 나오고 클릭하면 link 에 적혀있는 웹페이지로 넘어가게 하고 싶어
+
+파이썬 버전 3.12.12 / fastapi 와 jinja2template 쓰고, 알아서 파일정리 및 수정했으면 좋겠어
+
+```
+
+#### [gemini CLI prompt]
+
+```
+
+{
+  "role": "Senior Full Stack Python Developer",
+  "task": "Refactor existing flat HTML/CSS/JS files into a structured FastAPI application connected to a PostgreSQL database, implementing dynamic content rendering.",
+  "environment": {
+    "python_version": "3.12.12",
+    "frameworks": ["FastAPI", "Uvicorn", "Jinja2Templates", "SQLAlchemy"],
+    "database": "PostgreSQL (Driver: psycopg2-binary)"
+  },
+  "project_context": {
+    "current_files": {
+      "html": ["index_01.html", "index_02.html", "index_03.html", "index_04.html"],
+      "css": ["style.css"],
+      "js": ["script.js"]
+    },
+    "database_schema": {
+      "table_name": "being_geul",
+      "columns": [
+        "id (Integer, Primary Key)",
+        "title (String)",
+        "summary (String)",
+        "period (String)",
+        "link (String, External URL)"
+      ]
+    }
+  },
+  "requirements": [
+    "1. File Organization (setup.py): Create a script to move HTML files to 'templates/' and CSS/JS files to 'static/'. Update HTML references to use '/static/' path.",
+    "2. Database Model (main.py): Define the SQLAlchemy model for the 'being_geul' table containing the specified columns.",
+    "3. Backend Logic (main.py): Create a FastAPI app that queries all records from 'being_geul' and passes them to the templates.",
+    "4. Dynamic Rendering (Jinja2): Modify 'index_01.html' (and others if needed) to replace static content with a loop iterating over the database records.",
+    "5. UI/Design Specification (Important):",
+    "   - Instead of image thumbnails, create 'Text Cards' using CSS.",
+    "   - Style: Background color #000000 (Black), Text color #FFFFFF (White).",
+    "   - Content: Display 'title', 'summary', and 'period' inside the card.",
+    "   - Interaction: The entire card must be clickable. When clicked, it should navigate to the URL specified in the 'link' column."
+  ],
+  "deliverables": [
+    "setup.py (For reorganizing files)",
+    "main.py (Complete FastAPI server code)",
+    "Updated HTML snippet (Jinja2 loop structure)",
+    "Updated CSS snippet (For the black text-card styling)"
+  ],
+  "output_language": "Korean"
+}
+
+```
