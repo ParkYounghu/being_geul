@@ -167,7 +167,7 @@ function initAnalysisPage() {
 
     const likedIds = getLikedItems();
     if (likedIds.length === 0) {
-        analysisResults.innerHTML = '<p>아직 '좋아요'한 정책이 없습니다.</p>';
+        analysisResults.innerHTML = "<p>아직 '좋아요'한 정책이 없습니다.</p>";
         return;
     }
 
