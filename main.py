@@ -36,7 +36,6 @@ class BeingGeul(Base):
 
 # FastAPI 앱 초기화
 app = FastAPI()
-
 # 정적 파일 마운트 (CSS, JS)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
