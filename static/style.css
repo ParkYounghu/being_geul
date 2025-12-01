@@ -1,458 +1,140 @@
-/* --- 1. 기본 설정 및 타이포그래피 --- */
+/* --- 기본 설정 --- */
 body, html {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    background-color: #1a1a1a;
-    color: #fff;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    overflow: hidden; /* 스크롤 방지 (앱 느낌) */
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    background-color: #1a1a1a; color: #fff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    overflow: hidden;
 }
+#app-container { width: 100%; height: 100%; position: relative; }
 
-#app-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-/* --- 2. 페이지 섹션 전환 (SPA 효과) --- */
+/* --- 페이지 섹션 --- */
 .page-section {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
-    background-color: #1a1a1a;
-    overflow-y: auto; /* 내용이 길면 스크롤 */
-    z-index: 10;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0; visibility: hidden; z-index: 10;
+    background-color: #1a1a1a; overflow-y: auto;
+    transition: opacity 0.3s, visibility 0.3s;
 }
+.page-section.active { opacity: 1; visibility: visible; z-index: 100; }
 
-.page-section.active {
-    opacity: 1;
-    visibility: visible;
-    z-index: 100; /* 활성화된 페이지가 맨 위로 */
-}
-
-/* --- 3. 랜딩 페이지 (Landing Page) --- */
-#landing-section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    background-color: #111; /* 랜딩 페이지는 더 어둡게 */
-}
-
-.landing-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    max-width: 400px;
-}
-
+/* --- 랜딩 페이지 --- */
+#landing-section { display: flex; justify-content: center; align-items: center; background-color: #111; }
+.landing-content { text-align: center; width: 100%; max-width: 400px; }
 .brand-illustration {
-    width: 200px;
-    height: 200px;
-    background-color: #333;
-    border-radius: 50%;
-    margin-bottom: 40px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 1.2rem;
-    color: #888;
+    width: 200px; height: 200px; background: #333; border-radius: 50%;
+    margin: 0 auto 40px; display: flex; justify-content: center; align-items: center; color: #888;
 }
-
-.landing-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    width: 80%;
-}
-
-.landing-buttons button {
-    padding: 15px 30px;
-    border-radius: 30px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-    transition: transform 0.2s;
-}
-
-.landing-buttons button:hover {
-    transform: scale(1.05);
-}
-
+.landing-buttons { display: flex; flex-direction: column; gap: 15px; width: 80%; margin: 0 auto; }
+.landing-buttons button { padding: 15px; border-radius: 30px; border: none; font-weight: bold; cursor: pointer; transition: transform 0.2s; }
+.landing-buttons button:hover { transform: scale(1.05); }
 #login-btn-landing { background-color: #4CAF50; color: white; }
 #signup-btn-landing { background-color: transparent; border: 2px solid #fff; color: white; }
 #browse-btn-landing { background-color: transparent; color: #aaa; text-decoration: underline; }
 
-/* --- 4. 메인 스와이프 페이지 (Main Page) --- */
+/* --- 메인 페이지 --- */
 #main-header {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    right: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 10;
-    pointer-events: none; /* 헤더 영역이 카드를 가리지 않도록 */
-}
-
-#main-header > * {
-    pointer-events: auto; /* 버튼과 인풋은 클릭 가능하게 */
-}
-
-.top-bar-layout {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    margin-bottom: 15px;
-}
-
-#main-search-input {
-    flex-grow: 1;
-    margin-right: 10px;
-    padding: 12px 20px;
-    border-radius: 25px;
-    border: 1px solid #555;
-    background-color: rgba(51, 51, 51, 0.9);
-    color: #fff;
-    font-size: 1rem;
-}
-
-.top-right-buttons button {
-    background-color: rgba(51, 51, 51, 0.9);
-    color: white;
-    border: 1px solid #555;
-    padding: 10px 15px;
-    margin-left: 5px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.9rem;
-    white-space: nowrap;
-}
-
-.main-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: rgba(255, 255, 255, 0.9);
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-}
-
-/* 카드 영역 */
-#card-area {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-}
-
-#card-container {
-    width: 320px;
-    height: 426px; /* 3:4 비율 (320 * 1.33) */
-    position: relative;
-}
-
-.card {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0; left: 0;
-    background-color: #333;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    cursor: grab;
-    display: flex;
-    flex-direction: column;
-    padding: 25px;
-    box-sizing: border-box;
-    color: #fff;
-    overflow: hidden;
-    /* transition은 JS에서 제어 */
-}
-
-/* 카드 내부 레이아웃 (요청 사항 반영) */
-.card-content {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-}
-
-.card-summary {
-    font-size: 1.6rem;
-    font-weight: 800;
-    line-height: 1.3;
-    margin-bottom: 10px;
-    flex-shrink: 0;
-}
-
-.card-title {
-    font-size: 1rem;
-    color: rgba(255,255,255,0.8);
-    margin-bottom: 20px;
-    flex-shrink: 0;
-}
-
-.card-illustration {
-    flex-grow: 1;
-    background-color: rgba(0,0,0,0.2);
-    border-radius: 10px;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-}
-
-.card-period {
-    font-size: 0.9rem;
-    text-align: right;
-    color: rgba(255,255,255,0.9);
-    font-weight: bold;
-    background: rgba(0,0,0,0.3);
-    padding: 5px 10px;
-    border-radius: 10px;
-    align-self: flex-end;
-}
-
-/* 카드 오른쪽 플로팅 버튼 */
-.floating-buttons {
-    position: absolute;
-    right: -80px; /* 카드 밖으로 빼기 */
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.floating-buttons button {
-    background-color: rgba(255,255,255,0.1);
-    color: white;
-    border: 1px solid rgba(255,255,255,0.2);
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    cursor: pointer;
-    backdrop-filter: blur(5px);
-    transition: background 0.2s;
-}
-
-.floating-buttons button:hover {
-    background-color: rgba(255,255,255,0.3);
-}
-
-/* 하단 버튼들 */
-#load-more-btn {
-    position: absolute;
-    bottom: 100px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 10px 20px;
-    border-radius: 20px;
-    border: 1px solid #fff;
-    background: transparent;
-    color: #fff;
-    cursor: pointer;
-    z-index: 5;
-}
-
-#undo-btn {
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: none;
-    border: none;
-    color: #aaa;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 1rem;
-    z-index: 20;
-    text-decoration: underline;
-}
-
-/* 스와이프 인디케이터 (LIKE / PASS) */
-#action-indicators {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 100%;
+    position: absolute; top: 20px; left: 0; width: 100%;
+    display: flex; flex-direction: column; align-items: center; z-index: 10;
     pointer-events: none;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 30px;
-    box-sizing: border-box;
-    z-index: 50;
-    transform: translateY(-50%);
+}
+#main-header > * { pointer-events: auto; }
+.top-bar-layout { display: flex; justify-content: center; width: 90%; max-width: 600px; margin-bottom: 10px; gap: 10px; }
+#main-search-input { flex-grow: 1; padding: 12px 20px; border-radius: 25px; border: 1px solid #555; background: rgba(51,51,51,0.9); color: #fff; }
+.top-right-buttons { display: flex; gap: 5px; }
+.top-right-buttons button { background: rgba(51,51,51,0.9); color: white; border: 1px solid #555; padding: 10px 15px; border-radius: 20px; cursor: pointer; white-space: nowrap; }
+.main-title { font-size: 1.5rem; font-weight: bold; color: rgba(255,255,255,0.9); margin: 0; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+
+/* --- 카드 영역 (130% 확대) --- */
+#card-area {
+    width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;
+    position: relative; overflow: hidden;
+}
+#card-container {
+    /* 기존 320x426에서 약 1.3배 확대 */
+    width: 416px; height: 554px; 
+    position: relative;
+    max-width: 90vw; max-height: 70vh; /* 화면 작을 때 대응 */
+}
+.card {
+    width: 100%; height: 100%; position: absolute; top: 0; left: 0;
+    background-color: #333; border-radius: 25px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+    cursor: grab; display: flex; flex-direction: column; padding: 30px; box-sizing: border-box;
+    color: #fff; overflow: hidden;
+}
+.card-content { display: flex; flex-direction: column; height: 100%; }
+.card-summary { font-size: 2rem; font-weight: 800; line-height: 1.3; margin-bottom: 15px; flex-shrink: 0; }
+.card-title { font-size: 1.2rem; color: rgba(255,255,255,0.8); margin-bottom: 20px; flex-shrink: 0; }
+.card-illustration { flex-grow: 1; background: rgba(0,0,0,0.2); border-radius: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+.card-period { font-size: 1rem; text-align: right; color: rgba(255,255,255,0.9); font-weight: bold; background: rgba(0,0,0,0.3); padding: 8px 15px; border-radius: 12px; align-self: flex-end; }
+
+/* --- [NEW] 고정 사이드 버튼 --- */
+.static-side-buttons {
+    position: absolute;
+    right: 20px; /* 화면 오른쪽에 고정 */
+    top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 20px;
+    z-index: 60; /* 카드보다 위에 보일 수도 있음 (카드 크기에 따라 겹칠 시) */
+}
+@media (max-width: 600px) {
+    /* 모바일에서는 카드 오른쪽 하단이나 겹치게 배치 조정 필요할 수 있음 */
+    .static-side-buttons { right: 10px; }
 }
 
-.indicator {
-    font-size: 3rem;
-    font-weight: 900;
-    padding: 10px 20px;
-    border-radius: 10px;
-    opacity: 0;
-    text-transform: uppercase;
+.static-side-buttons button {
+    width: 60px; height: 60px; border-radius: 50%;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
+    color: white; font-weight: bold; cursor: pointer;
+    backdrop-filter: blur(5px); transition: all 0.2s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
+.static-side-buttons button:hover { background: rgba(255,255,255,0.3); transform: scale(1.1); }
 
+/* 하단 버튼 */
+#load-more-btn { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); padding: 12px 25px; border-radius: 25px; border: 1px solid #fff; background: rgba(0,0,0,0.5); color: #fff; cursor: pointer; z-index: 5; }
+#undo-btn { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: none; border: none; color: #aaa; font-weight: bold; cursor: pointer; font-size: 1.1rem; z-index: 20; text-decoration: underline; }
+
+/* 인디케이터 */
+#action-indicators { position: absolute; top: 50%; left: 0; width: 100%; pointer-events: none; display: flex; justify-content: space-between; padding: 0 30px; box-sizing: border-box; z-index: 50; transform: translateY(-50%); }
+.indicator { font-size: 3rem; font-weight: 900; padding: 10px 20px; border-radius: 10px; opacity: 0; text-transform: uppercase; }
 #like-indicator { color: #4CAF50; border: 4px solid #4CAF50; transform: rotate(-15deg); background: rgba(0,0,0,0.5); }
 #pass-indicator { color: #F44336; border: 4px solid #F44336; transform: rotate(15deg); background: rgba(0,0,0,0.5); }
 
-/* --- 5. 마이 페이지 (My Page) --- */
-#mypage-section {
-    display: flex;
-    flex-direction: column;
-    overflow-y: auto;
-}
-
-.mypage-header {
-    width: 100%;
-    height: 30vh;
-    background-color: #444;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    padding-bottom: 20px;
-}
-
-.header-image {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    /* URL 부분 삭제하고 그라데이션만 남김 */
-    background: linear-gradient(135deg, #333 0%, #111 100%);
-    z-index: 0;
-}
-
-.persona-text {
-    position: relative;
-    z-index: 1;
-    font-size: 2rem;
-    font-weight: bold;
-    margin: 0;
-    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
-}
-
-.mypage-content {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.preference-chart {
-    width: 300px;
-    height: 300px;
-    margin: 20px 0;
-}
-
-.genre-filters {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 30px;
-}
-
-.genre-filters button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 20px;
-    color: #fff;
-    cursor: pointer;
-    font-weight: bold;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-}
-.genre-filters button:hover, .genre-filters button.active { opacity: 1; transform: scale(1.05); }
-
-/* 플랜카드 스타일 (흰바탕 검은글씨) */
-.results-list {
-    width: 100%;
-    max-width: 600px;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.placard-card {
-    background-color: #fff;
-    color: #000;
-    padding: 20px;
-    border-radius: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    cursor: pointer;
-    transition: transform 0.2s;
-}
+/* --- 마이 페이지 --- */
+#mypage-section { display: flex; flex-direction: column; overflow-y: auto; }
+.mypage-header { width: 100%; height: 30vh; background: #444; position: relative; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 20px; }
+.header-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #333 0%, #111 100%); z-index: 0; }
+.persona-text { position: relative; z-index: 1; font-size: 2rem; font-weight: bold; text-shadow: 0 2px 5px rgba(0,0,0,0.8); margin: 0; }
+.mypage-content { padding: 20px; display: flex; flex-direction: column; align-items: center; }
+.preference-chart { width: 100%; max-width: 400px; height: 300px; margin: 20px 0; }
+.genre-filters { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 30px; }
+.genre-filters button { padding: 8px 16px; border: none; border-radius: 20px; color: #fff; cursor: pointer; font-weight: bold; opacity: 0.8; }
+.genre-filters button.active, .genre-filters button:hover { opacity: 1; transform: scale(1.05); }
+.results-list { width: 100%; max-width: 600px; display: flex; flex-direction: column; gap: 15px; }
+.placard-card { background: #fff; color: #000; padding: 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; transition: transform 0.2s; }
 .placard-card:hover { transform: translateY(-3px); }
-
 .placard-card h3 { margin: 0 0 5px 0; font-size: 1.1rem; }
 .placard-card p { margin: 0; color: #555; font-size: 0.9rem; }
-.placard-card span { font-size: 0.8rem; font-weight: bold; color: #888; white-space: nowrap; margin-left: 15px; }
+.placard-card span { font-size: 0.8rem; font-weight: bold; color: #888; margin-left: 15px; }
 
-/* --- 6. 모달 (Modals) --- */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    z-index: 3000;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    backdrop-filter: blur(5px);
-}
+/* --- 모달 --- */
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
 .hidden { display: none !important; }
+.modal-content { background: #222; width: 90%; max-width: 500px; padding: 30px; border-radius: 20px; position: relative; max-height: 85vh; overflow-y: auto; border: 1px solid #444; text-align: left; }
+.close-modal { position: absolute; top: 15px; right: 20px; font-size: 30px; cursor: pointer; color: #aaa; }
 
-.modal-content {
-    background: #222;
-    width: 90%; max-width: 500px;
-    padding: 30px; border-radius: 20px;
-    position: relative;
-    max-height: 85vh; overflow-y: auto;
-    border: 1px solid #444;
-    text-align: left;
-}
-.close-modal {
-    position: absolute; top: 15px; right: 20px;
-    font-size: 30px; cursor: pointer; color: #aaa;
-}
+/* 로그인 모달 */
+#login-modal .modal-content { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.login-image { width: 100px; height: 100px; background: #444; border-radius: 50%; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+.login-input { width: 80%; padding: 15px; margin: 5px 0; border-radius: 10px; border: 1px solid #555; background: #333; color: white; font-size: 1rem; }
+#login-modal button { width: 85%; padding: 15px; margin-top: 10px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 1rem; }
+#login-btn-modal { background: #4CAF50; color: white; }
+#signup-btn-modal { background: transparent; border: 1px solid #aaa; color: #aaa; }
 
-/* 로그인 모달 스타일 */
-#login-modal .modal-content {
-    display: flex; flex-direction: column; align-items: center; text-align: center;
-}
-.login-image {
-    width: 120px; height: 120px; background: #444;
-    border-radius: 50%; margin-bottom: 20px;
-    display: flex; align-items: center; justify-content: center;
-}
-#login-modal button {
-    width: 100%; padding: 15px; margin: 5px 0;
-    border-radius: 10px; border: none; font-weight: bold; cursor: pointer;
-}
-#login-btn-modal { background-color: #4CAF50; color: white; }
-#signup-btn-modal { background-color: transparent; border: 1px solid #aaa; color: #aaa; }
-
-/* 상세 모달 스타일 */
+/* 상세 모달 */
 #detail-modal h2 { margin-top: 0; color: #fff; }
 .modal-meta { color: #4CAF50; margin-bottom: 15px; display: block; }
-.modal-body { line-height: 1.6; color: #ddd; margin-bottom: 30px; white-space: pre-wrap;}
+.modal-body { line-height: 1.6; color: #ddd; margin-bottom: 30px; white-space: pre-wrap; }
 .modal-actions { display: flex; gap: 10px; }
-.action-btn { flex: 1; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; text-decoration: none; border: none; cursor: pointer; }
+.action-btn { flex: 1; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; text-decoration: none; border: none; cursor: pointer; color: white; }
 .action-btn.share { background: #FFC107; color: #000; }
-.action-btn.link { background: #2196F3; color: #fff; }
+.action-btn.link { background: #2196F3; }
