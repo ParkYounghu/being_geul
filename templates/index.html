@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>빙글</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.5/gsap.min.js"></script>
+</head>
+<body>
+    <nav>
+        <a href="#" onclick="switchTab('section-home'); return false;" class="active">홈</a>
+        <a href="#" onclick="switchTab('section-liked'); return false;">좋아요</a>
+        <a href="#" onclick="switchTab('section-analysis'); return false;">분석</a>
+        <a href="#" onclick="switchTab('section-search'); return false;">검색</a>
+    </nav>
+
+    <section id="section-home" class="page">
+        <div id="home-controls">
+            <input type="text" id="search-input" placeholder="정책 검색...">
+            <button id="undo-button">↩️</button>
+        </div>
+        <div id="card-container">
+            <!-- 카드는 스크립트에서 동적으로 생성됩니다. -->
+        </div>
+        <div id="action-indicators">
+            <div id="pass-indicator" class="indicator">PASS</div>
+            <div id="like-indicator" class="indicator">LIKE</div>
+        </div>
+    </section>
+
+    <section id="section-liked" class="page" style="display: none;">
+        <div id="liked-grid" class="grid-container">
+            <!-- '좋아요'한 정책이 여기에 표시됩니다. -->
+        </div>
+    </section>
+
+    <section id="section-analysis" class="page" style="display: none;">
+        <div id="analysis-container">
+            <h1>'좋아요'한 정책 장르 분석</h1>
+            <div id="analysis-results">
+                <!-- 분석 결과가 여기에 동적으로 삽입됩니다. -->
+            </div>
+        </div>
+    </section>
+
+    <section id="section-search" class="page" style="display: none;">
+        <div id="search-grid" class="grid-container">
+            <!-- 모든 정책이 여기에 표시됩니다. -->
+        </div>
+    </section>
+
+    <!-- Modal Structure -->
+    <div id="modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 id="modal-title"></h2>
+            <p id="modal-summary"></p>
+            <span id="modal-period"></span>
+            <div class="modal-actions">
+                <button id="modal-share-button">🔗 공유</button>
+                <a id="modal-link-button" href="#" target="_blank">바로가기</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const allPolicies = {{ policies|tojson }};
+    </script>
+    <script src="/static/script.js"></script>
+</body>
+</html>

@@ -54,27 +54,9 @@ def get_db():
 
 @app.get("/")
 def read_root(request: Request, db: Session = Depends(get_db)):
-    ''' Tinder-style Swipe UI 페이지 '''
+    ''' Single Page Application '''
     policies = db.query(BeingGeul).all()
-    return templates.TemplateResponse("index_01.html", {"request": request, "policies": policies})
-
-@app.get("/liked")
-def read_liked(request: Request, db: Session = Depends(get_db)):
-    ''' '좋아요' 표시한 정책을 보여주는 페이지 '''
-    policies = db.query(BeingGeul).all()
-    return templates.TemplateResponse("index_02.html", {"request": request, "policies": policies})
-
-@app.get("/analysis")
-def read_analysis(request: Request, db: Session = Depends(get_db)):
-    ''' '좋아요' 기반 장르 분석 페이지 '''
-    policies = db.query(BeingGeul).all()
-    return templates.TemplateResponse("index_03.html", {"request": request, "policies": policies})
-
-@app.get("/search")
-def read_search(request: Request, db: Session = Depends(get_db)):
-    ''' 모든 정책을 그리드 뷰로 보여주는 페이지 '''
-    policies = db.query(BeingGeul).all()
-    return templates.TemplateResponse("index_04.html", {"request": request, "policies": policies})
+    return templates.TemplateResponse("index.html", {"request": request, "policies": policies})
 
 # --- 서버 실행 (디버깅용) ---
 # if __name__ == "__main__":

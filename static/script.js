@@ -1,107 +1,155 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const path = window.location.pathname;
-
-    // 경로 확인을 유연하게 변경 (루트 '/' 또는 'index'가 포함된 주소)
-    if (path === '/' || path.includes('index')) {
-        initSwipePage();
-    } else if (path === '/liked') {
-        initLikedPage();
-    } else if (path === '/analysis') {
-        initAnalysisPage();
-    }
+    init();
 });
 
-// --- 스와이프 페이지 로직 (index_01) ---
-function initSwipePage() {
-    const cardContainer = document.getElementById('card-container');
-    if (!cardContainer) return;
+// --- 전역 변수 ---
+let cards = [];
+let activeCard = null;
+let swipedHistory = [];
 
-    // 카드를 배열로 가져오되, 맨 위 카드(사용자가 볼 카드)가 0번 인덱스가 되도록 역순 배열합니다.
-    const cards = Array.from(cardContainer.querySelectorAll('.card')).reverse();
+function init() {
+    // 페이지 초기화
+    buildCardStack(allPolicies);
+    initLikedPage();
+    initSearchPage();
+    initAnalysisPage();
+
+    // 이벤트 리스너 설정
+    const searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const filteredPolicies = allPolicies.filter(p => 
+            p.title.toLowerCase().includes(query) || 
+            p.summary.toLowerCase().includes(query)
+        );
+        buildCardStack(filteredPolicies);
+    });
+
+    const undoButton = document.getElementById('undo-button');
+    undoButton.addEventListener('click', undoLastSwipe);
+
+    // Modal listeners
+    const modal = document.getElementById('modal');
+    const closeButton = document.querySelector('.close-button');
+    closeButton.addEventListener('click', () => modal.style.display = 'none');
+    window.addEventListener('click', (event) => {
+        if (event.target == modal) {
+            modal.style.display = 'none';
+        }
+    });
+}
+
+function switchTab(targetId) {
+    const pages = document.querySelectorAll('.page');
+    const navLinks = document.querySelectorAll('nav a');
+
+    gsap.to(pages, {
+        duration: 0.3,
+        opacity: 0,
+        onComplete: () => {
+            pages.forEach(page => page.style.display = 'none');
+            const targetPage = document.getElementById(targetId);
+            if (targetPage) {
+                targetPage.style.display = 'flex';
+                gsap.to(targetPage, { duration: 0.3, opacity: 1 });
+            }
+
+            navLinks.forEach(link => {
+                link.classList.toggle('active', link.getAttribute('onclick').includes(targetId));
+            });
+            
+            // 데이터 새로고침
+            if (targetId === 'section-liked') initLikedPage();
+            if (targetId === 'section-analysis') initAnalysisPage();
+        }
+    });
+}
+
+// --- 카드 스택 생성 ---
+function buildCardStack(policies) {
+    const cardContainer = document.getElementById('card-container');
+    cardContainer.innerHTML = '';
+    cards = [];
+
+    // 역순으로 배열에 추가하여 렌더링 순서를 제어
+    policies.forEach(policy => {
+        const cardEl = document.createElement('div');
+        cardEl.className = 'card';
+        cardEl.dataset.id = policy.id;
+        cardEl.dataset.link = policy.link;
+        cardEl.dataset.genre = policy.genre;
+        cardEl.innerHTML = `
+            <h2>${policy.title}</h2>
+            <p>${policy.summary}</p>
+            <span>기간: ${policy.period}</span>
+        `;
+        cards.unshift(cardEl); // 배열의 맨 앞에 추가
+    });
+
+    cards.forEach(card => {
+        cardContainer.appendChild(card);
+    });
+
+    initSwipePage();
+}
+
+
+// --- 스와이프 로직 ---
+function initSwipePage() {
+    if (!cards.length) return;
     
     const likeIndicator = document.getElementById('like-indicator');
     const passIndicator = document.getElementById('pass-indicator');
     
-    let activeCard = null; 
-    let startX = 0;
-    let isDragging = false; 
-    let offsetX = 0;
-    
-    let isClickAllowed = true; // [FIX] 드래그와 클릭을 구분하는 플래그
-    let isTransitioning = false; // [FIX] 애니메이션 중 사용자 입력을 잠그는 플래그 (중간 멈춤 방지)
+    let startX = 0, isDragging = false, offsetX = 0, isClickAllowed = true, isTransitioning = false;
 
-    // 카드 위치와 스타일을 업데이트하는 핵심 함수
     const updateCardStack = () => {
         cards.forEach((card, index) => {
-            if (index < 3) { // 상위 3개 카드만 보이도록
+            if (index < 3) {
                 card.style.transform = `translateY(${index * -10}px) scale(${1 - index * 0.05})`;
                 card.style.opacity = 1;
                 card.style.zIndex = cards.length - index;
-                card.style.display = 'block'; 
-                card.style.transition = 'none'; // 위치 재설정 시 애니메이션 비활성화
+                card.style.display = 'flex';
             } else {
                 card.style.opacity = 0;
-                card.style.display = 'none'; // 뒤에 있는 카드는 이벤트 방지
+                card.style.display = 'none';
             }
         });
     };
     
-    // 드래그 시작 시점
     const startDrag = (e) => {
-        // 애니메이션 중에는 모든 상호작용 무시 [FIX]
-        if (isTransitioning) {
-            return; 
-        }
-
-        // 맨 위 카드(0번 인덱스)가 현재 클릭한 카드인지 확인하여 다른 카드 조작 방지 [FIX]
+        if (isTransitioning) return;
         activeCard = e.currentTarget;
-        if (!activeCard || cards[0] !== activeCard) {
-            return;
-        }
+        if (cards[0] !== activeCard) return;
 
         isDragging = true;
-        isClickAllowed = true; // 드래그 시작 시 클릭이라고 가정
+        isClickAllowed = true;
         activeCard.classList.add('dragging');
-        
-        const touch = e.type === 'touchstart' ? e.touches[0] : e;
-        startX = touch.clientX;
+        startX = (e.type === 'touchstart' ? e.touches[0] : e).clientX;
     };
 
-    // 드래그 중
     const drag = (e) => {
         if (!isDragging || !activeCard) return;
+        if(e.cancelable) e.preventDefault();
         
-        // 드래그 중 스크롤 등 기본 동작 방지
-        if(e.cancelable) e.preventDefault(); 
+        offsetX = (e.type === 'touchmove' ? e.touches[0] : e).clientX - startX;
+        if (Math.abs(offsetX) > 5) isClickAllowed = false;
+        
+        activeCard.style.transform = `translateX(${offsetX}px) rotate(${offsetX / 20}deg)`;
 
-        const touch = e.type === 'touchmove' ? e.touches[0] : e;
-        const currentX = touch.clientX;
-        
-        offsetX = currentX - startX;
-        
-        // 5픽셀 이상 움직였으면 클릭 아님
-        if (Math.abs(offsetX) > 5) {
-            isClickAllowed = false;
-        }
-        
-        const rotation = offsetX / 20;
-        activeCard.style.transform = `translateX(${offsetX}px) rotate(${rotation}deg)`;
+        const opacity = Math.min(Math.abs(offsetX) / (window.innerWidth / 4), 1);
 
-        const opacity = Math.abs(offsetX) / (window.innerWidth / 4);
-        
-        if (likeIndicator && passIndicator) {
-            if (offsetX > 0) {
-                likeIndicator.style.opacity = opacity;
-                passIndicator.style.opacity = 0;
-            } else {
-                passIndicator.style.opacity = opacity;
-                likeIndicator.style.opacity = 0;
-            }
+        // SWAPPED: LIKE on left, PASS on right
+        if (offsetX < 0) { // LEFT -> LIKE
+            likeIndicator.style.opacity = opacity;
+            passIndicator.style.opacity = 0;
+        } else { // RIGHT -> PASS
+            passIndicator.style.opacity = opacity;
+            likeIndicator.style.opacity = 0;
         }
     };
 
-    // 드래그 종료 시점
-    const endDrag = (e) => {
+    const endDrag = () => {
         if (!isDragging || !activeCard) return;
         isDragging = false;
         activeCard.classList.remove('dragging');
@@ -109,89 +157,133 @@ function initSwipePage() {
         const decisionThreshold = window.innerWidth / 4;
 
         if (Math.abs(offsetX) > decisionThreshold) {
-            // 스와이프 성공
-            
-            // 상호작용 잠금 [FIX]
             isTransitioning = true;
-            
-            const direction = offsetX > 0 ? 1 : -1;
+            const direction = offsetX > 0 ? 1 : -1; // 1 for right (PASS), -1 for left (LIKE)
 
-            activeCard.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
-            activeCard.style.transform = `translateX(${direction * window.innerWidth}px) rotate(${direction * 30}deg)`;
-            activeCard.style.opacity = 0;
+            const policyId = activeCard.dataset.id;
+            const swipedPolicy = allPolicies.find(p => p.id == policyId);
+            swipedHistory.push(swipedPolicy);
 
-            if (direction === 1) { // Like
-                saveLikedItem(activeCard.dataset.id);
-            }
-            
-            // 애니메이션 후 DOM과 배열에서 제거
-            setTimeout(() => {
-                if (cardContainer.contains(activeCard)) {
-                    cardContainer.removeChild(activeCard);
+            gsap.to(activeCard, {
+                x: direction * window.innerWidth,
+                rotation: direction * 30,
+                opacity: 0,
+                duration: 0.5,
+                onComplete: () => {
+                    cards.shift();
+                    activeCard.remove();
+                    updateCardStack();
+                    isTransitioning = false;
                 }
-                
-                // [FIX] 배열에서 맨 앞 요소를 제거 (다음 카드가 0번이 되게 함)
-                cards.shift(); 
-                
-                updateCardStack();
-                
-                // 잠금 해제 [FIX]
-                isTransitioning = false;
-            }, 300); 
+            });
 
-        } else { 
-            // 스와이프 실패 (원래 위치로 복귀)
-            activeCard.style.transition = 'transform 0.4s ease';
-            activeCard.style.transform = `translateY(0px) scale(1)`;
-            
-            if (likeIndicator) likeIndicator.style.opacity = 0;
-            if (passIndicator) passIndicator.style.opacity = 0;
+            // SWAPPED: Save on LEFT swipe
+            if (direction === -1) { // LIKE
+                saveLikedItem(policyId);
+            }
+        } else {
+            gsap.to(activeCard, { x: 0, y: 0, rotation: 0, duration: 0.4, ease: 'power3.out' });
         }
-        
+        likeIndicator.style.opacity = 0;
+        passIndicator.style.opacity = 0;
         offsetX = 0;
     };
     
-    // 클릭 시 링크 이동 처리
     const handleCardClick = (e) => {
-        // 드래그가 발생했다면 클릭 무시 [FIX]
-        if (!isClickAllowed) {
-            return; 
-        }
-        
-        const link = e.currentTarget.dataset.link;
-        if (link && link !== 'None') {
-            window.open(link, '_blank');
-        }
+        if (!isClickAllowed) return;
+        const policyId = e.currentTarget.dataset.id;
+        const policy = allPolicies.find(p => p.id == policyId);
+        openModal(policy);
     };
 
-    // 이벤트 리스너 등록
     cards.forEach(card => {
+        card.removeEventListener('mousedown', startDrag);
+        card.removeEventListener('touchstart', startDrag);
+        card.removeEventListener('click', handleCardClick);
+
         card.addEventListener('mousedown', startDrag);
         card.addEventListener('touchstart', startDrag, { passive: false });
         card.addEventListener('click', handleCardClick);
     });
 
-    // 문서 전체에 이동/종료 이벤트 등록
+    document.removeEventListener('mousemove', drag);
+    document.removeEventListener('touchmove', drag);
+    document.removeEventListener('mouseup', endDrag);
+    document.removeEventListener('touchend', endDrag);
+
     document.addEventListener('mousemove', drag);
     document.addEventListener('touchmove', drag, { passive: false });
-    
     document.addEventListener('mouseup', endDrag);
     document.addEventListener('touchend', endDrag);
     
-    // 초기화 실행
     updateCardStack();
 }
 
-// --- '좋아요' 저장 및 조회 로직 ---
+function undoLastSwipe() {
+    if (swipedHistory.length === 0) return;
+    const lastSwipedPolicy = swipedHistory.pop();
+    
+    // Check if card is already on screen
+    const isAlreadyVisible = cards.some(cardEl => cardEl.dataset.id == lastSwipedPolicy.id);
+    if(isAlreadyVisible) return;
+
+    // Remove from liked if it was a like
+    const likedItems = getLikedItems();
+    if(likedItems.includes(String(lastSwipedPolicy.id))){
+        removeLikedItem(String(lastSwipedPolicy.id));
+    }
+    
+    // Recreate and add card to the top
+    const cardContainer = document.getElementById('card-container');
+    const cardEl = document.createElement('div');
+    cardEl.className = 'card';
+    cardEl.dataset.id = lastSwipedPolicy.id;
+    cardEl.dataset.link = lastSwipedPolicy.link;
+    cardEl.dataset.genre = lastSwipedPolicy.genre;
+    cardEl.innerHTML = `
+        <h2>${lastSwipedPolicy.title}</h2>
+        <p>${lastSwipedPolicy.summary}</p>
+        <span>기간: ${lastSwipedPolicy.period}</span>
+    `;
+
+    cards.unshift(cardEl);
+    cardContainer.appendChild(cardEl);
+    initSwipePage();
+}
+
+
+// --- Modal 로직 ---
+function openModal(policy) {
+    if (!policy) return;
+    document.getElementById('modal-title').innerText = policy.title;
+    document.getElementById('modal-summary').innerText = policy.summary;
+    document.getElementById('modal-period').innerText = `기간: ${policy.period}`;
+    document.getElementById('modal-link-button').href = policy.link;
+
+    const shareButton = document.getElementById('modal-share-button');
+    shareButton.onclick = () => {
+        if (navigator.share) {
+            navigator.share({
+                title: policy.title,
+                text: policy.summary,
+                url: policy.link,
+            });
+        } else {
+            alert('이 브라우저에서는 공유 기능을 지원하지 않습니다.');
+        }
+    };
+    
+    document.getElementById('modal').style.display = 'flex';
+}
+
+
+// --- '좋아요' 저장, 조회, 삭제 ---
 function getLikedItems() {
     return JSON.parse(localStorage.getItem('likedPolicies') || '[]');
 }
 
 function saveLikedItem(id) {
-    if (!id) {
-        console.error("정책 ID가 없습니다.");
-        return;
-    }
+    if (!id) return;
     const likedItems = getLikedItems();
     if (!likedItems.includes(id)) {
         likedItems.push(id);
@@ -199,50 +291,67 @@ function saveLikedItem(id) {
     }
 }
 
-// --- '좋아요' 페이지 로직 (index_02) ---
+function removeLikedItem(id) {
+    let likedItems = getLikedItems();
+    likedItems = likedItems.filter(itemId => itemId !== id);
+    localStorage.setItem('likedPolicies', JSON.stringify(likedItems));
+}
+
+
+// --- 페이지 컨텐츠 생성 ---
 function initLikedPage() {
     const likedGrid = document.getElementById('liked-grid');
     if (!likedGrid) return;
     
     const likedIds = getLikedItems();
-    const allItems = Array.from(likedGrid.querySelectorAll('.grid-item'));
-
-    allItems.forEach(item => {
-        const id = item.dataset.id;
-        if (likedIds.includes(id)) {
-            item.style.display = 'block';
-        } else {
-            item.style.display = 'none'; // 좋아요 안 한 건 숨김
-        }
+    const likedPolicies = allPolicies.filter(p => likedIds.includes(String(p.id)));
+    
+    likedGrid.innerHTML = '';
+    likedPolicies.forEach(policy => {
+        const item = document.createElement('div');
+        item.className = 'grid-item';
+        item.innerHTML = `
+            <a href="${policy.link}" target="_blank">
+                <h2>${policy.title}</h2>
+                <p>${policy.summary}</p>
+                <span>기간: ${policy.period}</span>
+            </a>`;
+        likedGrid.appendChild(item);
     });
 }
 
-// --- 분석 페이지 로직 (index_03) ---
+function initSearchPage() {
+    const searchGrid = document.getElementById('search-grid');
+    if (!searchGrid) return;
+    
+    searchGrid.innerHTML = '';
+    allPolicies.forEach(policy => {
+        const item = document.createElement('div');
+        item.className = 'grid-item';
+        item.innerHTML = `
+            <a href="${policy.link}" target="_blank">
+                <h2>${policy.title}</h2>
+                <p>${policy.summary}</p>
+                <span>기간: ${policy.period}</span>
+            </a>`;
+        searchGrid.appendChild(item);
+    });
+}
+
 function initAnalysisPage() {
     const analysisResults = document.getElementById('analysis-results');
     if (!analysisResults) return;
 
     const likedIds = getLikedItems();
     if (likedIds.length === 0) {
-        analysisResults.innerHTML = "<p>아직 '좋아요'한 정책이 없습니다.</p>"; // [FIX] 따옴표 수정
+        analysisResults.innerHTML = "<p>아직 '좋아요'한 정책이 없습니다.</p>";
         return;
     }
-
-    const policies = [];
-    document.querySelectorAll('.grid-item, .card').forEach(el => {
-        const id = el.dataset.id;
-        if (id && !policies.find(p => p.id === id)) {
-            policies.push({
-                id: id,
-                genre: el.dataset.genre || '기타'
-            });
-        }
-    });
     
-    const likedPolicies = policies.filter(p => likedIds.includes(p.id));
+    const likedPolicies = allPolicies.filter(p => likedIds.includes(String(p.id)));
     
     const genreCounts = likedPolicies.reduce((acc, policy) => {
-        const genre = policy.genre;
+        const genre = policy.genre || '기타';
         acc[genre] = (acc[genre] || 0) + 1;
         return acc;
     }, {});
@@ -251,12 +360,10 @@ function initAnalysisPage() {
     const sortedGenres = Object.entries(genreCounts).sort(([,a],[,b]) => b-a);
     
     analysisResults.innerHTML = ''; 
-
     sortedGenres.forEach(([genre, count]) => {
         const percentage = ((count / totalLiked) * 100).toFixed(1);
         const statElement = document.createElement('div');
-        statElement.classList.add('genre-stat');
-        
+        statElement.className = 'genre-stat';
         statElement.innerHTML = `
             <div class="genre-name">${genre}</div>
             <div class="genre-bar-container">
@@ -267,8 +374,7 @@ function initAnalysisPage() {
         analysisResults.appendChild(statElement);
 
         setTimeout(() => {
-            const bar = statElement.querySelector('.genre-bar');
-            if(bar) bar.style.width = `${percentage}%`;
+            statElement.querySelector('.genre-bar').style.width = `${percentage}%`;
         }, 100);
     });
 }
