@@ -1,26 +1,4 @@
-/* --- 기본 설정 및 색상 변수 (진한 그라데이션 버전) --- */
-:root {
-    /* 🌸 봄 (Spring): 핑크빛 그라데이션 */
-    --spring-bg: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
-    --spring-text: #fff;
-    --spring-shadow: rgba(255, 154, 158, 0.6);
-
-    /* 🌿 여름 (Summer): 시원한 블루 그라데이션 */
-    --summer-bg: linear-gradient(120deg, #89f7fe 0%, #66a6ff 100%);
-    --summer-text: #fff;
-    --summer-shadow: rgba(102, 166, 255, 0.6);
-
-    /* 🍁 가을 (Autumn): 따뜻한 오렌지 그라데이션 */
-    --autumn-bg: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
-    --autumn-text: #fff;
-    --autumn-shadow: rgba(253, 160, 133, 0.6);
-
-    /* ❄️ 겨울 (Winter): 차분한 그레이/블루 그라데이션 */
-    --winter-bg: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
-    --winter-text: #333; /* 겨울은 밝은 배경이라 글자는 어둡게 */
-    --winter-shadow: rgba(161, 196, 253, 0.6);
-}
-
+/* --- 1. 기본 설정 및 타이포그래피 --- */
 body, html {
     margin: 0;
     padding: 0;
@@ -29,241 +7,282 @@ body, html {
     background-color: #1a1a1a;
     color: #fff;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    overflow: hidden;
+    overflow: hidden; /* 스크롤 방지 (앱 느낌) */
 }
 
-/* --- [좌측] 세로 사이드바 네비게이션 --- */
-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 260px;
-    height: 100vh;
-    background-color: #000;
-    border-right: 1px solid #333;
-    display: flex;
-    flex-direction: column;
-    padding-top: 60px;
-    z-index: 2000;
-    box-shadow: 4px 0 15px rgba(0,0,0,0.5);
-}
-
-nav button {
-    background: transparent;
-    border: none;
-    color: #999;
-    text-decoration: none;
-    padding: 25px 40px;
-    font-size: 22px;
-    font-weight: 700;
-    transition: all 0.2s ease-in-out;
-    text-align: left;
-    cursor: pointer;
-    border-left: 6px solid transparent;
-    margin-bottom: 5px;
-}
-
-nav button:hover {
-    color: #fff;
-    background-color: #1a1a1a;
-    padding-left: 45px;
-}
-
-nav button.active {
-    color: #4CAF50;
-    background-color: #111;
-    border-left: 6px solid #4CAF50;
-}
-
-/* --- [우측] 메인 컨텐츠 영역 --- */
 #app-container {
+    width: 100%;
+    height: 100%;
     position: relative;
-    margin-left: 260px;
-    width: calc(100% - 260px);
-    height: 100vh;
-    overflow: hidden;
 }
 
-/* --- 섹션 공통 스타일 --- */
+/* --- 2. 페이지 섹션 전환 (SPA 효과) --- */
 .page-section {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    padding: 50px;
-    box-sizing: border-box;
-    overflow-y: auto;
     opacity: 0;
     visibility: hidden;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
     background-color: #1a1a1a;
+    overflow-y: auto; /* 내용이 길면 스크롤 */
+    z-index: 10;
 }
 
 .page-section.active {
     opacity: 1;
     visibility: visible;
+    z-index: 100; /* 활성화된 페이지가 맨 위로 */
 }
 
-/* --- [홈 화면] 검색창 & 테마 버튼 --- */
-.search-wrapper {
-    position: absolute;
-    top: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    max-width: 600px;
-    z-index: 1000;
-    text-align: center;
+/* --- 3. 랜딩 페이지 (Landing Page) --- */
+#landing-section {
     display: flex;
-    gap: 15px;
+    justify-content: center;
     align-items: center;
+    text-align: center;
+    background-color: #111; /* 랜딩 페이지는 더 어둡게 */
 }
 
-#home-search-input {
-    flex: 1;
-    padding: 18px 30px;
-    border-radius: 40px;
-    border: 2px solid #444;
-    background: #2a2a2a;
-    color: white;
-    font-size: 18px;
-    outline: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    transition: border-color 0.3s, box-shadow 0.3s;
-}
-
-#home-search-input:focus {
-    border-color: #4CAF50;
-    box-shadow: 0 4px 20px rgba(76, 175, 80, 0.3);
-}
-
-/* 테마 변경 버튼 스타일 */
-#theme-toggle-btn {
-    padding: 0 25px;
-    height: 60px;
-    border-radius: 30px;
-    border: 2px solid #444;
-    background: #333;
-    color: #fff;
-    font-size: 1.2rem;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    transition: all 0.2s;
-    white-space: nowrap;
-}
-#theme-toggle-btn:hover {
-    background: #444;
-    transform: translateY(-2px);
-}
-
-/* --- 카드 컨테이너 --- */
-#card-container {
-    position: relative;
-    width: 100%;
-    max-width: 450px;
-    height: 65vh;
-    margin: 120px auto 0 auto;
-}
-
-/* [중요 수정] 기본 카드 스타일 */
-.card {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    
-    /* 기본값: 어두운 배경 (테마 적용 전) */
-    background-color: #2a2a2a;
-    
-    border-radius: 25px;
-    padding: 40px;
-    box-sizing: border-box;
+.landing-content {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-    cursor: grab;
-    
-    /* 텍스트 색상 기본값 */
-    color: #fff;
-    
-    transform-origin: center bottom;
-    transition: transform 0.1s;
-    border: none;
-    overflow: hidden;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
 }
 
-/* [중요 수정] 계절별 카드 스타일 (배경 전체 변경 & 강제 적용 !important) */
-
-/* 🌸 봄 */
-.card.spring { 
-    background: var(--spring-bg) !important; 
-    border-top: none !important;
-    box-shadow: 0 15px 40px var(--spring-shadow);
+.brand-illustration {
+    width: 200px;
+    height: 200px;
+    background-color: #333;
+    border-radius: 50%;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    color: #888;
 }
-.card.spring h2 { color: var(--spring-text) !important; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.card.spring p { color: rgba(255,255,255,0.9) !important; }
-.card.spring span { color: var(--spring-text) !important; background: rgba(255,255,255,0.3) !important; }
 
-/* 🌿 여름 */
-.card.summer { 
-    background: var(--summer-bg) !important; 
-    border-top: none !important;
-    box-shadow: 0 15px 40px var(--summer-shadow);
+.landing-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 80%;
 }
-.card.summer h2 { color: var(--summer-text) !important; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.card.summer p { color: rgba(255,255,255,0.9) !important; }
-.card.summer span { color: var(--summer-text) !important; background: rgba(255,255,255,0.3) !important; }
 
-/* 🍁 가을 */
-.card.autumn { 
-    background: var(--autumn-bg) !important; 
-    border-top: none !important;
-    box-shadow: 0 15px 40px var(--autumn-shadow);
-}
-.card.autumn h2 { color: var(--autumn-text) !important; text-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-.card.autumn p { color: rgba(255,255,255,0.9) !important; }
-.card.autumn span { color: var(--autumn-text) !important; background: rgba(255,255,255,0.3) !important; }
-
-/* ❄️ 겨울 */
-.card.winter { 
-    background: var(--winter-bg) !important; 
-    border-top: none !important;
-    box-shadow: 0 15px 40px var(--winter-shadow);
-}
-.card.winter h2 { color: var(--winter-text) !important; }
-.card.winter p { color: #555 !important; } /* 겨울은 배경이 밝아서 글씨를 어둡게 */
-.card.winter span { color: var(--winter-text) !important; background: rgba(255,255,255,0.6) !important; }
-
-
-/* 카드 내부 공통 타이포그래피 */
-.card h2 { 
-    margin-top: 0; 
-    font-size: 1.8rem; 
-    line-height: 1.4;
-    word-break: keep-all;
-    font-weight: 800;
-}
-.card p { 
-    line-height: 1.7; 
-    font-size: 1.1rem;
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 8; 
-    -webkit-box-orient: vertical;
-}
-.card span { 
-    font-size: 1rem; 
-    margin-top: 15px;
-    display: inline-block;
-    padding: 8px 15px;
-    border-radius: 12px;
+.landing-buttons button {
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 16px;
     font-weight: bold;
-    align-self: flex-end; /* 우측 정렬 */
-    backdrop-filter: blur(5px);
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s;
 }
 
-/* --- 스와이프 인디케이터 --- */
+.landing-buttons button:hover {
+    transform: scale(1.05);
+}
+
+#login-btn-landing { background-color: #4CAF50; color: white; }
+#signup-btn-landing { background-color: transparent; border: 2px solid #fff; color: white; }
+#browse-btn-landing { background-color: transparent; color: #aaa; text-decoration: underline; }
+
+/* --- 4. 메인 스와이프 페이지 (Main Page) --- */
+#main-header {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 10;
+    pointer-events: none; /* 헤더 영역이 카드를 가리지 않도록 */
+}
+
+#main-header > * {
+    pointer-events: auto; /* 버튼과 인풋은 클릭 가능하게 */
+}
+
+.top-bar-layout {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+#main-search-input {
+    flex-grow: 1;
+    margin-right: 10px;
+    padding: 12px 20px;
+    border-radius: 25px;
+    border: 1px solid #555;
+    background-color: rgba(51, 51, 51, 0.9);
+    color: #fff;
+    font-size: 1rem;
+}
+
+.top-right-buttons button {
+    background-color: rgba(51, 51, 51, 0.9);
+    color: white;
+    border: 1px solid #555;
+    padding: 10px 15px;
+    margin-left: 5px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.main-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* 카드 영역 */
+#card-area {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+#card-container {
+    width: 320px;
+    height: 426px; /* 3:4 비율 (320 * 1.33) */
+    position: relative;
+}
+
+.card {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0; left: 0;
+    background-color: #333;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    cursor: grab;
+    display: flex;
+    flex-direction: column;
+    padding: 25px;
+    box-sizing: border-box;
+    color: #fff;
+    overflow: hidden;
+    /* transition은 JS에서 제어 */
+}
+
+/* 카드 내부 레이아웃 (요청 사항 반영) */
+.card-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.card-summary {
+    font-size: 1.6rem;
+    font-weight: 800;
+    line-height: 1.3;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+}
+
+.card-title {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+.card-illustration {
+    flex-grow: 1;
+    background-color: rgba(0,0,0,0.2);
+    border-radius: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+}
+
+.card-period {
+    font-size: 0.9rem;
+    text-align: right;
+    color: rgba(255,255,255,0.9);
+    font-weight: bold;
+    background: rgba(0,0,0,0.3);
+    padding: 5px 10px;
+    border-radius: 10px;
+    align-self: flex-end;
+}
+
+/* 카드 오른쪽 플로팅 버튼 */
+.floating-buttons {
+    position: absolute;
+    right: -80px; /* 카드 밖으로 빼기 */
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.floating-buttons button {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: background 0.2s;
+}
+
+.floating-buttons button:hover {
+    background-color: rgba(255,255,255,0.3);
+}
+
+/* 하단 버튼들 */
+#load-more-btn {
+    position: absolute;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 1px solid #fff;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    z-index: 5;
+}
+
+#undo-btn {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: none;
+    border: none;
+    color: #aaa;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+    z-index: 20;
+    text-decoration: underline;
+}
+
+/* 스와이프 인디케이터 (LIKE / PASS) */
 #action-indicators {
     position: absolute;
     top: 50%;
@@ -274,62 +293,122 @@ nav button.active {
     justify-content: space-between;
     padding: 0 30px;
     box-sizing: border-box;
-    z-index: 500;
+    z-index: 50;
+    transform: translateY(-50%);
 }
 
 .indicator {
-    font-size: 4rem;
+    font-size: 3rem;
     font-weight: 900;
-    padding: 15px 30px;
-    border-radius: 15px;
+    padding: 10px 20px;
+    border-radius: 10px;
     opacity: 0;
     text-transform: uppercase;
-    letter-spacing: 2px;
 }
 
-#like-indicator { 
-    color: #4CAF50; 
-    border: 6px solid #4CAF50; 
-    transform: rotate(-15deg); 
-    background: rgba(255,255,255,0.8);
-}
-#pass-indicator { 
-    color: #F44336; 
-    border: 6px solid #F44336; 
-    transform: rotate(15deg); 
-    background: rgba(255,255,255,0.8);
+#like-indicator { color: #4CAF50; border: 4px solid #4CAF50; transform: rotate(-15deg); background: rgba(0,0,0,0.5); }
+#pass-indicator { color: #F44336; border: 4px solid #F44336; transform: rotate(15deg); background: rgba(0,0,0,0.5); }
+
+/* --- 5. 마이 페이지 (My Page) --- */
+#mypage-section {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
 }
 
-/* --- 되돌리기 버튼 --- */
-#undo-btn {
-    position: absolute;
-    bottom: 40px;
-    left: 40px;
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    background: #333;
-    color: white;
-    border: none;
-    font-size: 35px;
-    cursor: pointer;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-    z-index: 1000;
-    transition: transform 0.2s, background-color 0.2s;
-}
-#undo-btn:hover {
+.mypage-header {
+    width: 100%;
+    height: 30vh;
     background-color: #444;
-    transform: scale(1.05);
-}
-#undo-btn:active {
-    transform: scale(0.95);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 20px;
 }
 
-/* --- 상세 보기 모달 --- */
+.header-image {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    /* URL 부분 삭제하고 그라데이션만 남김 */
+    background: linear-gradient(135deg, #333 0%, #111 100%);
+    z-index: 0;
+}
+
+.persona-text {
+    position: relative;
+    z-index: 1;
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.8);
+}
+
+.mypage-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.preference-chart {
+    width: 300px;
+    height: 300px;
+    margin: 20px 0;
+}
+
+.genre-filters {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.genre-filters button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+.genre-filters button:hover, .genre-filters button.active { opacity: 1; transform: scale(1.05); }
+
+/* 플랜카드 스타일 (흰바탕 검은글씨) */
+.results-list {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.placard-card {
+    background-color: #fff;
+    color: #000;
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.placard-card:hover { transform: translateY(-3px); }
+
+.placard-card h3 { margin: 0 0 5px 0; font-size: 1.1rem; }
+.placard-card p { margin: 0; color: #555; font-size: 0.9rem; }
+.placard-card span { font-size: 0.8rem; font-weight: bold; color: #888; white-space: nowrap; margin-left: 15px; }
+
+/* --- 6. 모달 (Modals) --- */
 .modal-overlay {
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.85);
     z-index: 3000;
     display: flex;
@@ -340,59 +419,40 @@ nav button.active {
 .hidden { display: none !important; }
 
 .modal-content {
-    background: #1a1a1a;
-    width: 90%;
-    max-width: 600px;
-    padding: 40px;
-    border-radius: 25px;
-    border: 1px solid #444;
+    background: #222;
+    width: 90%; max-width: 500px;
+    padding: 30px; border-radius: 20px;
     position: relative;
-    max-height: 85vh;
-    overflow-y: auto;
-    box-shadow: 0 25px 60px rgba(0,0,0,0.9);
+    max-height: 85vh; overflow-y: auto;
+    border: 1px solid #444;
+    text-align: left;
 }
 .close-modal {
-    position: absolute;
-    top: 20px; right: 25px;
-    font-size: 35px;
-    cursor: pointer;
-    color: #888;
-    transition: color 0.2s;
+    position: absolute; top: 15px; right: 20px;
+    font-size: 30px; cursor: pointer; color: #aaa;
 }
-.close-modal:hover { color: #fff; }
-.modal-content h2 { font-size: 2rem; margin-top: 0; margin-bottom: 10px; color: #fff; }
-.modal-meta { color: #4CAF50; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; }
-.modal-body { line-height: 1.8; color: #ddd; margin-bottom: 40px; font-size: 1.1rem; white-space: pre-line; }
 
-.modal-actions { display: flex; gap: 20px; }
-.action-btn {
-    flex: 1; padding: 18px; border-radius: 12px; text-align: center;
-    text-decoration: none; font-weight: bold; cursor: pointer; border: none;
-    font-size: 1.1rem; transition: transform 0.2s, filter 0.2s;
+/* 로그인 모달 스타일 */
+#login-modal .modal-content {
+    display: flex; flex-direction: column; align-items: center; text-align: center;
 }
-.action-btn:hover { filter: brightness(1.1); transform: translateY(-2px); }
+.login-image {
+    width: 120px; height: 120px; background: #444;
+    border-radius: 50%; margin-bottom: 20px;
+    display: flex; align-items: center; justify-content: center;
+}
+#login-modal button {
+    width: 100%; padding: 15px; margin: 5px 0;
+    border-radius: 10px; border: none; font-weight: bold; cursor: pointer;
+}
+#login-btn-modal { background-color: #4CAF50; color: white; }
+#signup-btn-modal { background-color: transparent; border: 1px solid #aaa; color: #aaa; }
+
+/* 상세 모달 스타일 */
+#detail-modal h2 { margin-top: 0; color: #fff; }
+.modal-meta { color: #4CAF50; margin-bottom: 15px; display: block; }
+.modal-body { line-height: 1.6; color: #ddd; margin-bottom: 30px; white-space: pre-wrap;}
+.modal-actions { display: flex; gap: 10px; }
+.action-btn { flex: 1; padding: 15px; border-radius: 10px; text-align: center; font-weight: bold; text-decoration: none; border: none; cursor: pointer; }
 .action-btn.share { background: #FFC107; color: #000; }
 .action-btn.link { background: #2196F3; color: #fff; }
-
-/* --- 그리드 (좋아요/검색) --- */
-.grid-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 25px;
-    padding-bottom: 60px;
-}
-.grid-item {
-    background: #222; border: 1px solid #333; padding: 25px; border-radius: 18px;
-    cursor: pointer; transition: transform 0.2s, background-color 0.2s, border-color 0.2s;
-}
-.grid-item:hover {
-    transform: translateY(-7px); background-color: #2a2a2a; border-color: #4CAF50;
-}
-.grid-item h4 { margin-top: 0; color: #fff; font-size: 1.3rem; margin-bottom: 10px; }
-.grid-item p { color: #aaa; font-size: 1rem; line-height: 1.5; }
-
-/* --- 분석 탭 --- */
-#analysis-container h2 { font-size: 2rem; margin-bottom: 30px; text-align: center; }
-#analysis-results {
-    max-width: 700px; margin: 0 auto; background: #222; padding: 30px; border-radius: 20px;
-}

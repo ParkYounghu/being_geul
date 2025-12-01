@@ -9,56 +9,83 @@
 </head>
 <body>
 
-    <nav>
-        <button onclick="switchTab('home')" class="active">홈</button>
-        <button onclick="switchTab('liked')">보관함</button>
-        <button onclick="switchTab('analysis')">분석</button>
-        <button onclick="switchTab('search')">전체</button>
-    </nav>
-
     <main id="app-container">
-        
-        <section id="section-home" class="page-section active">
-            <div class="search-wrapper">
-                <input type="text" id="home-search-input" placeholder="관심있는 키워드 검색 (예: 청년, 주거)">
-            </div>
 
-            <div id="card-container">
+        <section id="landing-section" class="page-section active">
+            <div class="landing-content">
+                <div class="brand-illustration">
+                    <span>BING-GEUL</span>
                 </div>
-
-            <div id="action-indicators">
-                <div id="like-indicator" class="indicator">LIKE</div>
-                <div id="pass-indicator" class="indicator">PASS</div>
+                <div class="landing-buttons">
+                    <button id="login-btn-landing">로그인</button>
+                    <button id="signup-btn-landing">회원가입</button>
+                    <button id="browse-btn-landing">그냥 둘러보기</button>
+                </div>
             </div>
-
-            <button id="undo-btn" onclick="undoLastSwipe()">↩️</button>
         </section>
 
-        <section id="section-liked" class="page-section">
-            <h2>내 보관함</h2>
-            <div id="liked-grid" class="grid-container">
+        <section id="main-section" class="page-section">
+            <header id="main-header">
+                <div class="top-bar-layout">
+                    <input type="text" id="main-search-input" placeholder="키워드 검색 (예: 청년, 창업)">
+                    <div class="top-right-buttons">
+                        </div>
                 </div>
+                <h1 class="main-title">오늘의 추천 정책</h1>
+            </header>
+            
+            <div id="card-area">
+                <div id="action-indicators">
+                    <div id="like-indicator" class="indicator">LIKE</div>
+                    <div id="pass-indicator" class="indicator">PASS</div>
+                </div>
+                
+                <div id="card-container">
+                    </div>
+                
+                <button id="load-more-btn" style="display: none;">카드 더 가져오기</button>
+            </div>
+            
+            <button id="undo-btn">[이전 카드 다시보기]</button>
         </section>
 
-        <section id="section-analysis" class="page-section">
-            <div id="analysis-container">
-                <h2>취향 분석</h2>
-                <div id="analysis-results">
+        <section id="mypage-section" class="page-section">
+            <div class="mypage-header">
+                <div class="header-image"></div>
+                <p class="persona-text">당신의 취향: 혜택 사냥꾼 🏹</p>
+                <button onclick="switchSection('main-section')" style="position:absolute; top:20px; left:20px; z-index:10; background:rgba(0,0,0,0.5); border:none; color:white; padding:10px; border-radius:50%;">🏠</button>
+            </div>
+            
+            <div class="mypage-content">
+                <div class="preference-chart">
+                    <canvas id="hexagon-chart"></canvas>
+                </div>
+                
+                <div class="genre-filters">
+                    </div>
+                
+                <div id="mypage-results" class="results-list">
                     </div>
             </div>
         </section>
 
-        <section id="section-search" class="page-section">
-            <h2>전체 정책 보기</h2>
-            <div id="search-grid" class="grid-container">
-                </div>
-        </section>
-
     </main>
+
+    <div id="login-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="login-image">
+                <span>🔒</span>
+            </div>
+            <h3>로그인이 필요해요</h3>
+            <p style="color:#aaa; margin-bottom:20px;">더 많은 맞춤 정책을 확인해보세요!</p>
+            <button id="login-btn-modal">로그인</button>
+            <button id="signup-btn-modal">회원가입</button>
+        </div>
+    </div>
 
     <div id="detail-modal" class="modal-overlay hidden">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <span class="close-modal">&times;</span>
             <h2 id="modal-title">정책 제목</h2>
             <p id="modal-period" class="modal-meta">기간</p>
             <div id="modal-summary" class="modal-body">내용</div>
@@ -71,9 +98,10 @@
     </div>
 
     <script>
-        // 서버(Python)에서 보낸 데이터를 자바스크립트 변수로 변환
-        const allPolicies = {{ policies | tojson }};
-        console.log("데이터 수신 완료:", allPolicies.length + "개");
+        // Python(FastAPI/Jinja2)에서 넘겨준 데이터를 전역 변수로 할당
+        // const를 지우고 window.allPolicies 로 변경
+        window.allPolicies = {{ policies | tojson }};
+        console.log("데이터 수신 완료:", window.allPolicies.length + "개");
     </script>
     <script src="/static/script.js"></script>
 </body>
