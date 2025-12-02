@@ -20,7 +20,6 @@ DB_PORT = os.getenv("DB_PORT", "5432")
 DB_NAME = os.getenv("DB_NAME", "dbname")
 
 DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-# (테스트용 DB URL - 실제 환경에 맞게 수정하세요)
 # DATABASE_URL = "sqlite:///./test.db" 
 
 engine = create_engine(DATABASE_URL)
@@ -43,7 +42,10 @@ class UserLikes(BaseModel):
 
 app = FastAPI()
 
+# [중요] static 폴더와 함께 images 폴더도 마운트
 app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount("/images", StaticFiles(directory="images"), name="images")
+
 templates = Jinja2Templates(directory="templates")
 
 def get_db():
@@ -79,11 +81,9 @@ def read_mypage(request: Request, db: Session = Depends(get_db)):
     data = get_processed_policies(db)
     return templates.TemplateResponse("mypage.html", {"request": request, "policies": data})
 
-# [핵심] 닉네임 생성 API
+# 닉네임 생성 API
 @app.post("/api/generate-nickname")
 def generate_nickname(likes: UserLikes):
-    # 실제 Gemini API를 쓰려면 여기에 google.generativeai 로직 추가
-    # 현재는 데모용 랜덤 생성 로직
     genres = likes.liked_genres
     most_common_genre = max(set(genres), key=genres.count) if genres else "정책"
     
