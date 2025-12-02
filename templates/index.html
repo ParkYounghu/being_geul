@@ -2,107 +2,99 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>빙글 - 정책 매칭</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    <div class="main-scroll-container">
 
-    <main id="app-container">
-
-        <section id="landing-section" class="page-section active">
+        <section class="snap-section" id="landing-section">
             <div class="landing-content">
-                <div class="brand-illustration">
-                    <span>BING-GEUL</span>
+                <div class="landing-image-placeholder">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">🖼️</div>
+                    <span>이미지 준비중</span>
                 </div>
+                
+                <h1 class="brand-title">BING-GEUL</h1>
+                <p class="brand-slogan">나에게 딱 맞는 정책을 찾아보세요</p>
+                
                 <div class="landing-buttons">
-                    <button id="login-btn-landing">로그인</button>
-                    <button id="signup-btn-landing">회원가입</button>
-                    <button id="browse-btn-landing">그냥 둘러보기</button>
+                    <button id="login-btn-landing" class="landing-btn primary">로그인</button>
+                    <button id="signup-btn-landing" class="landing-btn secondary" onclick="alert('준비 중입니다.')">회원가입</button>
                 </div>
+                <button id="browse-btn-landing" class="text-link-btn">그냥 둘러보기 ↓</button>
             </div>
         </section>
 
-        <section id="main-section" class="page-section">
+        <section class="snap-section" id="main-section">
             <header id="main-header">
                 <div class="top-bar-layout">
-                    <input type="text" id="main-search-input" placeholder="키워드 검색 (예: 청년, 창업)">
-                    <div class="top-right-buttons">
-                        </div>
+                    <input type="text" id="main-search-input" placeholder="관심 키워드 (예: 청년, 창업)">
+                    <div class="top-right-buttons"></div>
                 </div>
-                <h1 class="main-title">오늘의 추천 정책</h1>
             </header>
             
+            <h2 class="section-title">오늘의 추천 정책</h2>
+
             <div id="card-area">
                 <div id="action-indicators">
                     <div id="like-indicator" class="indicator">LIKE</div>
                     <div id="pass-indicator" class="indicator">PASS</div>
                 </div>
-                
-                <div id="card-container">
-                    </div>
-
-                <div class="static-side-buttons">
-                    <button id="btn-view-original">원문</button>
-                    <button id="btn-share">공유</button>
-                    <button id="btn-notify">알림</button>
-                </div>
-                
+                <div id="card-container"></div>
                 <button id="load-more-btn" style="display: none;">카드 더 가져오기</button>
             </div>
             
-            <button id="undo-btn">[이전 카드 다시보기]</button>
+            <button id="undo-btn">↺ 이전 카드 다시보기</button>
         </section>
 
-        <section id="mypage-section" class="page-section">
-            <div class="mypage-header">
-                <div class="header-image"></div>
-                <p class="persona-text">당신의 취향: 혜택 사냥꾼 🏹</p>
-                <button onclick="switchSection('main-section')" style="position:absolute; top:20px; left:20px; z-index:10; background:rgba(0,0,0,0.5); border:none; color:white; padding:10px; border-radius:50%; cursor:pointer;">🏠</button>
-            </div>
-            
-            <div class="mypage-content">
-                <div class="preference-chart">
-                    <canvas id="hexagon-chart"></canvas>
+        <section class="snap-section" id="nickname-section">
+            <div class="content-box">
+                <h2>당신의 정책 취향은?</h2>
+                <div id="ai-nickname-display" class="loading-text">
+                    🔒 아직 잠겨있습니다.<br>
+                    (카드 10개를 LIKE 해주세요)
                 </div>
-                <div class="genre-filters"></div>
-                <div id="mypage-results" class="results-list"></div>
             </div>
         </section>
 
-    </main>
+        <section class="snap-section" id="chart-section">
+            <h2>취향 분포도</h2>
+            <div class="chart-container">
+                <canvas id="main-hexagon-chart"></canvas>
+            </div>
+        </section>
+
+    </div>
 
     <div id="login-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="login-image"><span>🔒</span></div>
-            <h3>로그인</h3>
+        <div class="modal-content" style="text-align: center;">
+            <h3 style="margin-top:0;">로그인</h3>
             <input type="text" id="login-id" placeholder="ID (123123)" class="login-input">
             <input type="password" id="login-pw" placeholder="PW (123123)" class="login-input">
-            
-            <button id="login-btn-modal">로그인</button>
-            <button id="signup-btn-modal">회원가입</button>
-            <button onclick="closeModal('login-modal')" style="background:transparent; color:#888; margin-top:10px;">닫기</button>
+            <button id="login-btn-modal" class="landing-btn primary" style="width:100%; margin-top:20px;">로그인</button>
+            <button onclick="closeModal('login-modal')" class="text-link-btn" style="margin-top:15px;">닫기</button>
         </div>
     </div>
 
     <div id="detail-modal" class="modal-overlay hidden">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal('detail-modal')">&times;</span>
-            <h2 id="modal-title">정책 제목</h2>
-            <p id="modal-period" class="modal-meta">기간</p>
-            <div id="modal-summary" class="modal-body">내용</div>
+            <h2 id="modal-title"></h2>
+            <p id="modal-period"></p>
+            <div id="modal-summary"></div>
+            
             <div class="modal-actions">
-                <button id="modal-share-btn" class="action-btn share">공유하기 🔗</button>
-                <a id="modal-link-btn" href="#" target="_blank" class="action-btn link">원문 보러가기 🌐</a>
+                <button id="modal-share-btn" class="action-btn icon" title="공유하기">🔗</button>
+                <button id="modal-notify-btn" class="action-btn icon" title="알림받기">🔔</button>
+                <a id="modal-link-btn" href="#" target="_blank" class="action-btn primary">원문 보러가기</a>
             </div>
         </div>
     </div>
 
     <script>
-        // 전역 변수 충돌 방지
         window.allPolicies = {{ policies | tojson }};
-        console.log("데이터 수신 완료:", window.allPolicies.length + "건");
     </script>
     <script src="/static/script.js"></script>
 </body>
