@@ -66,7 +66,12 @@ function initMainPage() {
     loadMoreCards();
     
     const canvas = document.getElementById('main-hexagon-chart');
-    if (canvas) { canvas.width = 280; canvas.height = 280; renderHexagonChart('main-hexagon-chart'); }
+    if (canvas) { 
+        // [수정] 해상도 3배 증가 (280 -> 840)
+        canvas.width = 840; 
+        canvas.height = 840; 
+        renderHexagonChart('main-hexagon-chart'); 
+    }
 }
 
 function setupMainEventListeners() {
@@ -409,18 +414,71 @@ function showNickname(nick) {
     if(el) el.innerHTML = `<div>"${nick}"</div>`; 
 }
 
+// [수정] 캔버스 크기에 맞춰 비율 자동 조절
 function renderHexagonChart(canvasId) {
     const canvas = document.getElementById(canvasId); if (!canvas) return;
-    const ctx = canvas.getContext('2d'); const w = canvas.width, h = canvas.height; ctx.clearRect(0, 0, w, h);
-    const genres = getUniqueGenres(); const likedIds = getLikedItems(); const counts = {}; genres.forEach(g=>counts[g]=0);
+    const ctx = canvas.getContext('2d'); 
+    const w = canvas.width, h = canvas.height; 
+    ctx.clearRect(0, 0, w, h);
+
+    // 해상도에 따른 스케일 계산 (기본 300px 기준)
+    const scale = w / 300; 
+
+    const genres = getUniqueGenres(); 
+    const likedIds = getLikedItems(); 
+    const counts = {}; genres.forEach(g=>counts[g]=0);
     likedIds.forEach(id=>{ const p=window.allPolicies.find(x=>x.id==id); if(p) counts[p.genre||'기타']=(counts[p.genre||'기타']||0)+1; });
-    const maxVal = Math.max(...Object.values(counts), 1); const size = Math.min(w, h)/2 - 60; const cx = w/2, cy = h/2; const step = (Math.PI*2)/genres.length;
-    ctx.strokeStyle = '#555'; ctx.lineWidth=1;
-    for(let r=1; r<=3; r++) { ctx.beginPath(); for(let i=0; i<genres.length; i++) { const rad = step*i - Math.PI/2; const x=cx+Math.cos(rad)*(size/3)*r, y=cy+Math.sin(rad)*(size/3)*r; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); } ctx.closePath(); ctx.stroke(); }
-    ctx.beginPath(); genres.forEach((g,i)=>{ const rad = step*i - Math.PI/2; const val = (counts[g]/maxVal)*size; const x=cx+Math.cos(rad)*val, y=cy+Math.sin(rad)*val; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
-    ctx.closePath(); ctx.fillStyle='rgba(76,175,80,0.6)'; ctx.fill(); ctx.strokeStyle='#4CAF50'; ctx.lineWidth=3; ctx.stroke();
-    ctx.fillStyle='#333'; ctx.font='bold 14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    genres.forEach((g,i)=>{ const rad = step*i - Math.PI/2; const x=cx+Math.cos(rad)*(size+35), y=cy+Math.sin(rad)*(size+35); ctx.fillText(g, x, y); });
+    
+    const maxVal = Math.max(...Object.values(counts), 1); 
+    
+    // 여백 및 크기 계산 (스케일 적용)
+    const padding = 60 * scale; 
+    const size = Math.min(w, h)/2 - padding; 
+    const cx = w/2, cy = h/2; 
+    const step = (Math.PI*2)/genres.length;
+
+    // 배경 육각형
+    ctx.strokeStyle = '#555'; 
+    ctx.lineWidth = 1 * scale; // 선 두께 조절
+    
+    for(let r=1; r<=3; r++) { 
+        ctx.beginPath(); 
+        for(let i=0; i<genres.length; i++) { 
+            const rad = step*i - Math.PI/2; 
+            const x=cx+Math.cos(rad)*(size/3)*r, y=cy+Math.sin(rad)*(size/3)*r; 
+            i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); 
+        } 
+        ctx.closePath(); 
+        ctx.stroke(); 
+    }
+
+    // 데이터 영역
+    ctx.beginPath(); 
+    genres.forEach((g,i)=>{ 
+        const rad = step*i - Math.PI/2; 
+        const val = (counts[g]/maxVal)*size; 
+        const x=cx+Math.cos(rad)*val, y=cy+Math.sin(rad)*val; 
+        i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); 
+    });
+    ctx.closePath(); 
+    ctx.fillStyle='rgba(76,175,80,0.6)'; 
+    ctx.fill(); 
+    ctx.strokeStyle='#4CAF50'; 
+    ctx.lineWidth = 3 * scale; // 데이터 선 두께 조절
+    ctx.stroke();
+
+    // 텍스트
+    ctx.fillStyle='#333'; 
+    ctx.font = `bold ${14 * scale}px sans-serif`; // 폰트 크기 조절
+    ctx.textAlign='center'; 
+    ctx.textBaseline='middle';
+    
+    genres.forEach((g,i)=>{ 
+        const rad = step*i - Math.PI/2; 
+        const textOffset = 35 * scale; // 텍스트 간격 조절
+        const x=cx+Math.cos(rad)*(size + textOffset), y=cy+Math.sin(rad)*(size + textOffset); 
+        ctx.fillText(g, x, y); 
+    });
 }
 
 function handleSearch(e){ const t=e.target.value.toLowerCase(); currentCardStack=window.allPolicies.filter(p=>p.title.toLowerCase().includes(t)).slice(0,10); renderCardStack(); }
