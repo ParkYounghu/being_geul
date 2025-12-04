@@ -17,7 +17,6 @@ const folderMapping = {
     '기타': '복지'
 };
 
-// [복구] 카테고리별 고유 색상 (MyPage 버튼용)
 const genreColors = { 
     '금융/자산': '#2E7D32', '취업/창업': '#F9A825', '주거/생활': '#1565C0',
     '교육/역량': '#009688', '복지/건강': '#EC407A', '참여/권리': '#AB47BC'
@@ -45,7 +44,6 @@ function initMainPage() {
     setupKeyboardNavigation();
     updateMainHeader();
     
-    // Undo 버튼 초기화 (초기엔 display: none)
     const undoBtn = document.getElementById('undo-btn');
     if(undoBtn) {
         undoBtn.innerHTML = '↺'; 
@@ -237,7 +235,6 @@ function restoreLastItem() {
 function updateRestoreButton() {
     const btn = document.getElementById('restore-btn');
     if (!btn) {
-        // 메인 페이지: Undo 버튼 토글
         const mainUndo = document.getElementById('undo-btn');
         if(mainUndo) mainUndo.style.display = deletedHistory.length > 0 ? 'flex' : 'none';
         return;
@@ -245,14 +242,13 @@ function updateRestoreButton() {
     if (deletedHistory.length > 0) { btn.style.display = 'block'; btn.innerText = `↺ 삭제 취소 (${deletedHistory.length})`; } else { btn.style.display = 'none'; }
 }
 
-// [수정] MyPage 버튼 색상 복구 (CSS에서 override 안 되게 style 속성 사용)
 function renderGenreFilters(){ 
     const c=document.querySelector('.genre-filters'); if(!c)return; c.innerHTML=''; 
     const b=document.createElement('button'); b.innerText="전체"; b.style.backgroundColor = "#555"; b.onclick=()=>renderPlacardList(null); c.appendChild(b); 
     getUniqueGenres().forEach(g=>{ 
         const btn=document.createElement('button'); 
         btn.innerText=g; 
-        btn.style.backgroundColor = getGenreColor(g); // 여기서 색상 지정
+        btn.style.backgroundColor = getGenreColor(g); 
         btn.onclick=()=>renderPlacardList(g); 
         c.appendChild(btn); 
     }); 
@@ -317,7 +313,6 @@ function completeSwipe(card, dir) {
         if(likeCount === 20) triggerFinalAnalysis();
     }
     
-    // 카드 넘기면 Undo 버튼 보임
     const undoBtn = document.getElementById('undo-btn');
     if(undoBtn) undoBtn.style.display = 'flex';
 
