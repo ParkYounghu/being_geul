@@ -120,4 +120,6 @@ title, summary, genre 컬럼을 검사해줘.
 
 위 문자들이 하나도 없고 이상한 특수문자로만 된 경우에만 '자동복구됨' 같은 텍스트로 UPDATE 해줘."
 
+결과 : fix_db_smart.py 내용
+
 ```
