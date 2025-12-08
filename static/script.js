@@ -19,29 +19,36 @@ const genreColors = {
     '교육/역량': '#009688', '복지/건강': '#EC407A', '참여/권리': '#AB47BC'
 };
 
-// [이미지 에러 3단 방어] PNG -> JPEG -> 배너 -> 숨김
+// [이미지 에러 방어: PNG -> JPEG -> JPG -> 배너]
 window.handleImgError = function(img) {
     const src = img.src;
+    
+    // 배너까지 깨지면 숨김
     if (src.includes('banner.png')) {
-        img.style.display = 'none'; // 배너도 없으면 숨김
+        img.style.display = 'none'; 
         return;
     }
-    if (src.includes('.png')) {
+
+    // 1. PNG 실패 -> JPEG 시도
+    if (src.endsWith('.png')) {
         img.src = src.replace('.png', '.jpeg');
-    } else {
-        img.src = '/images/banner.png'; // 둘 다 없으면 기본 배너
+    } 
+    // 2. JPEG 실패 -> JPG 시도
+    else if (src.endsWith('.jpeg')) {
+        img.src = src.replace('.jpeg', '.jpg');
+    }
+    // 3. 다 실패 -> 기본 배너
+    else {
+        img.src = '/images/banner.png';
         img.style.objectFit = 'contain';
     }
 };
 
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. 데이터 및 상태 복구 (가장 중요)
     reconstructLikedData();
 
-    // 2. 현재 상태 확인
     const analysisDone = localStorage.getItem('analysisDone') === 'true';
 
-    // 3. 잠금 메시지 UI 업데이트
     const lockMsg = document.getElementById('lock-message');
     if(lockMsg) {
         if(analysisDone) {
@@ -56,20 +63,16 @@ document.addEventListener('DOMContentLoaded', () => {
     else if (document.getElementById('mypage-container')) initMyPage();
 });
 
-// [핵심 수정] 데이터 복구 및 상태 동기화 함수
 function reconstructLikedData() {
     const likedIds = getLikedItems();
     likeCount = likedIds.length;
     
-    // 데이터 재구성
     likedDataForAI = { titles: [], genres: [] };
     likedIds.forEach(id => {
         const p = window.allPolicies.find(x => String(x.id) === String(id));
         if (p) { likedDataForAI.titles.push(p.title); likedDataForAI.genres.push(p.genre); }
     });
 
-    // [중요] 갯수가 목표치 미만으로 떨어졌다면 '분석 완료' 상태를 강제 리셋
-    // 이걸 해줘야 마이페이지에서 삭제하고 돌아왔을 때 다시 분석이 시작됨
     if (likeCount < TARGET_LIKES) {
         localStorage.setItem('analysisDone', 'false');
     }
@@ -85,26 +88,22 @@ function initMainPage() {
     const savedImg = localStorage.getItem('myTypeImage');
     const savedNick = localStorage.getItem('myTypeNickname');
 
-    // [이미지 표시 로직]
     if (analysisDone && savedImg) {
-        // 1. 분석 완료된 상태면 저장된 결과 고정
         showResultImage(savedImg); 
         if (savedNick) showNickname(savedNick);
     } else if (likeCount > 0) {
-        // 2. 분석 중이라도 데이터가 있으면 실시간 이미지 보여주기
-        // (리셋 후 다시 카드를 넘길 때 여기가 작동함)
         const currentImg = getAnalysisImagePath();
         if(currentImg) showResultImage(currentImg);
     }
 
-    // [수정] 카드 덱 구성: 6개 장르별로 최대 3장씩, 총 18장 구성
+    // [최종 수정] 카드 덱 구성: 끝까지 장르별 균형 맞추기 (Round-Robin)
     if (window.allPolicies && window.allPolicies.length > 0) {
         const likedIds = getLikedItems();
         
         // 1. 아직 보지 않은 카드 필터링
         const candidates = window.allPolicies.filter(p => !likedIds.includes(String(p.id)));
 
-        // 2. 장르별 그룹핑
+        // 2. 장르별 그룹핑 (섞어서 준비)
         const genreGroups = {
             '금융/자산': [], '취업/창업': [], '주거/생활': [],
             '교육/역량': [], '복지/건강': [], '참여/권리': []
@@ -117,20 +116,45 @@ function initMainPage() {
             }
         });
 
-        // 3. 각 장르별로 랜덤하게 3장씩 추출
-        let selectedCards = [];
-        targetGenres.forEach(genre => {
-            const group = genreGroups[genre];
-            if (group && group.length > 0) {
-                // 해당 장르 내에서 섞기
-                const shuffledGroup = group.sort(() => 0.5 - Math.random());
-                // 최대 3장 추출
-                selectedCards.push(...shuffledGroup.slice(0, 3));
-            }
+        // 내부적으로 한 번 섞어줌 (같은 장르 내에서도 랜덤하게 뽑히도록)
+        targetGenres.forEach(g => {
+            genreGroups[g].sort(() => 0.5 - Math.random());
         });
 
-        // 4. 최종 덱 섞기
-        availablePolicies = selectedCards.sort(() => 0.5 - Math.random());
+        // 3. 라운드 로빈 방식으로 덱 생성
+        let finalDeck = [];
+        let hasMoreCards = true;
+
+        while (hasMoreCards) {
+            let roundBatch = [];
+            let emptyGenres = 0;
+
+            targetGenres.forEach(genre => {
+                const group = genreGroups[genre];
+                // 각 장르에서 최대 3장씩 꺼냄 (남은게 1장이면 1장만, 없으면 0장)
+                if (group.length > 0) {
+                    const chunk = group.splice(0, 3);
+                    roundBatch.push(...chunk);
+                } else {
+                    emptyGenres++;
+                }
+            });
+
+            // 이번 라운드에 뽑힌 카드가 하나도 없으면 종료
+            if (roundBatch.length === 0) {
+                hasMoreCards = false;
+            } else {
+                // 이번 라운드(최대 18장)를 섞어서 최종 덱에 추가
+                roundBatch.sort(() => 0.5 - Math.random());
+                finalDeck.push(...roundBatch);
+            }
+        }
+
+        availablePolicies = finalDeck;
+        console.log(`총 ${availablePolicies.length}장의 카드가 균형있게 정렬되었습니다.`); 
+
+    } else {
+        availablePolicies = [];
     }
     
     loadMoreCards();
@@ -207,7 +231,6 @@ function updateMainUI() {
     }
 }
 
-// --- Auth (자동 로그인 포함) ---
 async function handleSignup() {
     const id = document.getElementById('signup-id').value;
     const pw = document.getElementById('signup-pw').value;
@@ -220,7 +243,6 @@ async function handleSignup() {
         });
         
         if(res.ok) {
-            // [수정] 가입 성공 시 바로 로그인 처리
             const loginRes = await fetch('/api/login', {
                 method: 'POST', headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({username: id, password: pw})
@@ -267,14 +289,14 @@ async function handleLogin() {
 
 function switchToSignup() { closeModal('login-modal'); openModal('signup-modal'); }
 
-// --- Card Swipe Logic ---
 function loadMoreCards() {
     if (availablePolicies.length === 0) {
         if (window.allPolicies.length > 0 && currentCardStack.length === 0) alert("모든 정책 카드를 확인하셨습니다!");
         document.getElementById('load-more-btn').style.display = 'none';
         return;
     }
-    const newCards = availablePolicies.splice(0, 30);
+    // 한번에 18장씩 가져오도록 설정
+    const newCards = availablePolicies.splice(0, 18);
     currentCardStack = [...currentCardStack, ...newCards];
     renderCardStack();
 }
@@ -292,7 +314,7 @@ function createCardElement(policy) {
     card.className = 'card';
     card.dataset.id = policy.id;
     const rawGenre = policy.genre || '금융/자산'; 
-    const fileName = rawGenre.replace('/', '_') + '.png';
+    const fileName = rawGenre.replace('/', '_') + '.png'; // 일단 png로 시작
     const imgPath = `/images/${fileName}`;
 
     card.innerHTML = `
@@ -320,19 +342,16 @@ function completeSwipe(card, dir) {
         likedDataForAI.titles.push(p.title); 
         likedDataForAI.genres.push(p.genre);
         
-        // 1. 실시간 이미지 업데이트 (분석 완료 전이어야 작동)
         updateRealTimeAnalysis();
         
         const isDone = localStorage.getItem('analysisDone') === 'true';
         const lockMsg = document.getElementById('lock-message');
         
-        // 2. 텍스트 업데이트
         if(lockMsg && !isDone) {
             const remaining = Math.max(0, TARGET_LIKES - likeCount);
             lockMsg.innerHTML = `아직 잠겨있습니다.<br>(카드 ${remaining}개를 더 LIKE 해주세요)`;
         }
 
-        // 3. 30개 달성 체크 (분석 전인 경우에만)
         if(!isDone && likeCount >= TARGET_LIKES) {
             triggerFinalAnalysis();
         }
@@ -363,7 +382,6 @@ function getAnalysisImagePath() {
 
 function updateRealTimeAnalysis() {
     renderHexagonChart('main-hexagon-chart');
-    // 이미 완료된 상태면 건드리지 않음
     if (localStorage.getItem('analysisDone') === 'true') return;
     
     const imagePath = getAnalysisImagePath();
@@ -402,7 +420,6 @@ function showResultImage(src) {
     }
 }
 
-// Helpers & MyPage Logic
 function undoLastSwipe(){ if(lastSwiped.length){ const p = lastSwiped.pop(); currentCardStack.unshift(p); renderCardStack(); let liked = getLikedItems(); if(liked.includes(String(p.id))) { liked = liked.filter(id => id !== String(p.id)); localStorage.setItem('likedPolicies', JSON.stringify(liked)); likeCount--; const idx = likedDataForAI.titles.indexOf(p.title); if(idx > -1) { likedDataForAI.titles.splice(idx, 1); likedDataForAI.genres.splice(idx, 1); } renderHexagonChart('main-hexagon-chart'); if (localStorage.getItem('analysisDone') !== 'true') { const currentImg = getAnalysisImagePath(); if(currentImg) showResultImage(currentImg); } } } if(lastSwiped.length === 0) document.getElementById('undo-btn').style.display = 'none'; }
 function openDetailModal(id){ const p = window.allPolicies.find(x => String(x.id) === String(id)); if (!p) return; document.getElementById('modal-title').innerText = p.title; document.getElementById('modal-period').innerText = p.period; document.getElementById('modal-summary').innerText = p.summary; const linkBtn = document.getElementById('modal-link-btn'); if (linkBtn) linkBtn.href = p.link; openModal('detail-modal'); }
 function showNickname(nick) { const el = document.getElementById('nickname-placeholder'); if(el) el.innerHTML = `<div style="margin-top:20px; font-weight:bold; font-size:1.5rem;">"${nick}"</div>`; }
@@ -417,8 +434,6 @@ function getGenreColor(genre) { if (genreColors[genre]) return genreColors[genre
 function initCardEvents(card) { let startX = 0, startY = 0, isDragging = false; const onStart = (e) => { isDragging = true; startX = e.clientX||e.touches[0].clientX; startY = e.clientY||e.touches[0].clientY; card.style.transition = 'none'; }; const onMove = (e) => { if (!isDragging) return; const x = (e.clientX||e.touches[0].clientX) - startX; card.style.transform = `translateX(${x}px) rotate(${x/20}deg)`; const op = Math.min(Math.abs(x)/100, 1); if(x<0) { if(document.getElementById('like-indicator')) document.getElementById('like-indicator').style.opacity=op; if(document.getElementById('pass-indicator')) document.getElementById('pass-indicator').style.opacity=0; } else { if(document.getElementById('pass-indicator')) document.getElementById('pass-indicator').style.opacity=op; if(document.getElementById('like-indicator')) document.getElementById('like-indicator').style.opacity=0; } }; const onEnd = (e) => { if (!isDragging) return; isDragging = false; const x = (e.clientX||e.changedTouches[0].clientX) - startX; const y = (e.clientY||e.changedTouches[0].clientY) - startY; if(Math.sqrt(x*x+y*y)<10) { openDetailModal(card.dataset.id); card.style.transform=''; return; } if(Math.abs(x)>100) completeSwipe(card, x>0?1:-1); else { card.style.transition='0.3s'; card.style.transform=''; document.getElementById('like-indicator').style.opacity=0; document.getElementById('pass-indicator').style.opacity=0; } }; card.addEventListener('mousedown',onStart); document.addEventListener('mousemove',onMove); document.addEventListener('mouseup',onEnd); card.addEventListener('touchstart',onStart); document.addEventListener('touchmove',onMove); document.addEventListener('touchend',onEnd); }
 function swipeTopCard(dir) { const c=document.querySelectorAll('.card'); if(c.length) completeSwipe(c[c.length-1], dir==='right'?1:-1); }
 function initMyPage() { renderGenreFilters(); renderPlacardList(); const savedImg = localStorage.getItem('myTypeImage'); const imgContainer = document.getElementById('mypage-type-image-container'); if (savedImg && imgContainer) { imgContainer.innerHTML = `<img src="${savedImg}" style="max-width:300px; width:100%; border-radius:15px;" onerror="handleImgError(this)">`; } setTimeout(() => { const c = document.getElementById('hexagon-chart'); if (c) { c.width = 450; c.height = 450; renderHexagonChart('hexagon-chart'); }}, 300); }
-
-// [마이페이지 삭제 로직 수정] 여기서도 삭제 후 30개 미만이면 분석 리셋
 function deleteLikedItem(id, el) { const card = el.closest('.placard-card'); card.style.opacity = '0'; setTimeout(() => card.remove(), 300); let list = getLikedItems(); if (list.includes(String(id))) deletedHistory.push(String(id)); list = list.filter(x => x !== String(id)); localStorage.setItem('likedPolicies', JSON.stringify(list)); if(list.length < TARGET_LIKES) { localStorage.setItem('analysisDone', 'false'); } renderHexagonChart('hexagon-chart'); updateRestoreButton(); }
 function toggleAll(source) { const checkboxes = document.querySelectorAll('.card-checkbox:not(#select-all)'); checkboxes.forEach(cb => cb.checked = source.checked); }
 function deleteSelectedItems() { const checkboxes = document.querySelectorAll('.card-checkbox:not(#select-all):checked'); if (!checkboxes.length) { alert("삭제할 항목을 선택해주세요."); return; } if (!confirm(`${checkboxes.length}개 항목을 삭제하시겠습니까?`)) return; let list = getLikedItems(); checkboxes.forEach(cb => { const id = cb.dataset.id; if (list.includes(String(id))) { deletedHistory.push(String(id)); } list = list.filter(x => x !== String(id)); const card = cb.closest('.placard-card'); if (card) card.remove(); }); localStorage.setItem('likedPolicies', JSON.stringify(list)); if(list.length < TARGET_LIKES) { localStorage.setItem('analysisDone', 'false'); } renderHexagonChart('hexagon-chart'); updateRestoreButton(); document.getElementById('select-all').checked = false; }
